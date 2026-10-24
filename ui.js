@@ -144,6 +144,10 @@ function renderEvents(list) {
 function selectEvent(ev, item) {
   selectedEvent = ev;
 
+    if (window.openEventChat) {
+    window.openEventChat(ev);
+  }
+
   document.querySelectorAll("#events-list .event-item")
     .forEach(i => {
       i.classList.remove("selected");
@@ -362,6 +366,7 @@ if (addDialog && addBtn) {
     }
 
     events.push({
+      id: crypto.randomUUID(),
       day: document.getElementById("add-day").value,
       name: name,
       place: place,
@@ -377,6 +382,9 @@ if (addDialog && addBtn) {
 
     sortEvents();
     renderEvents(events);
+    if (window.updateChatEventDropdown) {
+  window.updateChatEventDropdown();
+}
 
     // redraw the map pins and Nearby (C's map code)
     if (window.refreshMapEvents) {
@@ -402,3 +410,35 @@ renderEvents(events);
 window.getMapEvents = function () {
   return events;
 };
+
+
+/* ---------- PHASE 8: CHAT INTEGRATION ---------- */
+
+// Give sample events stable IDs
+const chatSampleIds = {
+  "Poppi|MSC": "poppi-msc",
+  "Pizza|Zachry": "pizza-zachry",
+  "Donuts|Evans Library": "donuts-evans"
+};
+
+events.forEach(event => {
+  if (event.id == null) {
+    const key = event.name + "|" + event.place;
+
+    event.id =
+      chatSampleIds[key] ||
+      crypto.randomUUID();
+  }
+});
+
+// Update chat dropdown after adding a new event
+const originalRenderEvents = renderEvents;
+
+renderEvents = function(list) {
+  originalRenderEvents(list);
+
+  if (window.updateChatEventDropdown) {
+    window.updateChatEventDropdown();
+  }
+};
+
