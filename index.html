@@ -30,9 +30,63 @@
     </button>
   </header>
 
+  <!-- PROFILE WINDOW -->
+<dialog id="profile-dialog">
+  <h2>Profile</h2>
+
+  <label>Name
+    <input id="profile-name" type="text" placeholder="Your name">
+  </label>
+
+  <label>Email
+    <input id="profile-email" type="email" placeholder="you@tamu.edu">
+  </label>
+
+  <label>Phone
+    <input id="profile-phone" type="tel" inputmode="numeric" placeholder="979-555-0123">
+  </label>
+
+  <label class="check-row">
+    <input id="profile-org" type="checkbox"> I'm an org
+  </label>
+
+  <button class="cancel-btn" id="open-notif-btn" type="button">Notification settings</button>
+
+
+  <div class="dialog-buttons">
+    <button class="im-here" id="profile-save">Save</button>
+    <button class="cancel-btn" id="profile-cancel">Cancel</button>
+  </div>
+</dialog>
+
+<!-- NOTIFICATION SETTINGS WINDOW -->
+<dialog id="notif-dialog">
+  <h2>Notifications</h2>
+
+  <p>Notify me about:</p>
+  <label class="check-row"><input id="n-food" type="checkbox"> Free food</label>
+  <label class="check-row"><input id="n-events" type="checkbox"> Events</label>
+  <label class="check-row"><input id="n-leftovers" type="checkbox"> Leftovers</label>
+  <label class="check-row"><input id="n-chat" type="checkbox"> Chat messages</label>
+  <label class="check-row"><input id="n-nearby" type="checkbox"> Nearby</label>
+
+  <p>Send by:</p>
+  <label class="check-row"><input id="m-text" type="checkbox"> Text</label>
+  <label class="check-row"><input id="m-email" type="checkbox"> Email</label>
+  <label class="check-row"><input id="m-push" type="checkbox"> Push</label>
+
+  <div class="dialog-buttons">
+    <button class="im-here" id="notif-save">Save</button>
+    <button class="cancel-btn" id="notif-cancel">Cancel</button>
+  </div>
+</dialog>
+
+  
+
   <!-- PAGE LAYOUT: two columns -->
   <main class="layout">
 
+    
     <!-- LEFT COLUMN -->
     <div class="column">
 
@@ -74,10 +128,33 @@
 
       </div>
 
-      <section class="panel" id="chat">
-        <h2>Chat</h2>
-        <div class="chat-box" id="chat-box"></div>
-      </section>
+      
+<section class="panel" id="chat">
+  <h2>Chat</h2>
+
+  <h3 id="chat-event-name">Select an event</h3>
+
+  <div class="chat-box" id="chat-box"></div>
+
+  <div class="chat-input-area">
+    <input
+      type="text"
+      id="chat-name"
+      placeholder="Your name"
+      maxlength="40"
+    >
+
+    <input
+      type="text"
+      id="chat-message"
+      placeholder="Type a message..."
+      maxlength="500"
+    >
+
+    <button id="chat-send">Send</button>
+  </div>
+</section>
+
 
     </div>
 
