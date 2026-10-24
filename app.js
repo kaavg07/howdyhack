@@ -9,3 +9,5 @@ async function testConnection() {
 }
 
 testConnection();
+
+console.log("hello");
