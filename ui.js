@@ -79,7 +79,8 @@ function selectEvent(ev, item) {
 
 function fillPopup(ev) {
   document.getElementById("pop-name").textContent  = ev.name;
-  document.getElementById("pop-place").textContent = ev.place;
+    document.getElementById("pop-place").textContent =
+    ev.room ? ev.place + " " + ev.room : ev.place;
   document.getElementById("pop-time").textContent  = ev.time;
   document.getElementById("busy-marker").style.left = (ev.busy * 100) + "%";
 
@@ -169,7 +170,8 @@ const addBtn = document.getElementById("add-event-btn");
 if (addDialog && addBtn) {
   addBtn.addEventListener("click", () => addDialog.showModal());
   document.getElementById("add-cancel").addEventListener("click", () => addDialog.close());
-
+      // show the "type it in" box only when "Other" is picked
+ 
   function formatTime(t) {
     let [h, m] = t.split(":").map(Number);
     const ampm = h >= 12 ? "PM" : "AM";
@@ -178,21 +180,27 @@ if (addDialog && addBtn) {
   }
 
   document.getElementById("add-save").addEventListener("click", () => {
-    const name  = document.getElementById("add-name").value.trim();
-    const start = document.getElementById("add-start").value;
-    const end   = document.getElementById("add-end").value;
+  const name  = document.getElementById("add-name").value.trim();
+  const start = document.getElementById("add-start").value;
+  const end   = document.getElementById("add-end").value;
 
-    if (!name || !start || !end) {
-      alert("Please fill in the name, start time, and end time.");
-      return;
-    }
+    const place = document.getElementById("add-place").value.trim();
+  const room  = document.getElementById("add-room").value.trim();
+
+  if (!name || !start || !end || !place) {
+    alert("Please fill in the name, location, start time, and end time.");
+    return;
+  }
 
     events.push({
       day: document.getElementById("add-day").value,
       name: name,
-      place: document.getElementById("add-place").value,
+      place: place,
+      room: room,
       time: formatTime(start) + " - " + formatTime(end),
       busy: 0.1,
+      type: document.getElementById("add-type").value,
+      anonymous: document.getElementById("add-anon").checked,
       start: start,
       updatedAt: new Date(),
       pending: [],
@@ -205,7 +213,9 @@ if (addDialog && addBtn) {
 
     renderEvents(events);
     renderNearby(events);
-    document.getElementById("add-name").value = "";
+       document.getElementById("add-name").value = "";
+    document.getElementById("add-place").value = "";
+    document.getElementById("add-room").value = "";
     addDialog.close();
   });
 }

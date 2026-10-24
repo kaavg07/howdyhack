@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Free Food Finder</title>
+
+  <!-- Map library (Leaflet) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Fonts and icons (must come before style.css) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,11 +20,11 @@
 
   <!-- TOP BAR -->
   <header class="topbar">
-    <button aria-label="Profile">
+    <button id="profile-btn" aria-label="Profile">
       <span class="material-symbols-outlined">person</span>
     </button>
 
-    <button>
+    <button id="add-event-btn">
       <span class="material-symbols-outlined">add</span>
       <span class="label">Add Event</span>
     </button>
@@ -60,17 +59,17 @@
 
         <!-- Popup: hidden until an event is clicked -->
         <aside class="popup" id="event-popup" hidden>
-            <h3 id="pop-name"></h3>
-            <p id="pop-place"></p>
-            <p id="pop-time"></p>
+          <h3 id="pop-name"></h3>
+          <p id="pop-place"></p>
+          <p id="pop-time"></p>
 
-            <label class="busy-label">busy?</label>
-            <div class="busy-bar">
-                <div class="busy-marker" id="busy-marker"></div>
-            </div>
-            <p class="popup-updated" id="pop-updated"></p>
+          <label class="busy-label">busy?</label>
+          <div class="busy-bar">
+            <div class="busy-marker" id="busy-marker"></div>
+          </div>
+          <p class="popup-updated" id="pop-updated"></p>
 
-        <button class="im-here" id="im-here-btn">I'm Here!</button>
+          <button class="im-here" id="im-here-btn">I'm Here!</button>
         </aside>
 
       </div>
@@ -84,26 +83,77 @@
 
   </main>
 
+  <!-- CHECK-IN WINDOW -->
   <dialog id="checkin-dialog">
-  <h2>You're here!</h2>
-  <p id="checkin-event"></p>
+    <h2>You're here!</h2>
+    <p id="checkin-event"></p>
 
-  <label>How busy is it?
-    <input id="checkin-slider" type="range" min="0" max="100" value="50">
-  </label>
-  <div class="slider-labels"><span>Empty</span><span>Packed</span></div>
+    <label>How busy is it?
+      <input id="checkin-slider" type="range" min="0" max="100" value="50">
+    </label>
+    <div class="slider-labels"><span>Empty</span><span>Packed</span></div>
 
-  <div class="dialog-buttons">
-    <button class="im-here" id="checkin-save">Send check-in</button>
-    <button class="cancel-btn" id="checkin-cancel">Cancel</button>
-  </div>
-</dialog>
+    <div class="dialog-buttons">
+      <button class="im-here" id="checkin-save">Send check-in</button>
+      <button class="cancel-btn" id="checkin-cancel">Cancel</button>
+    </div>
+  </dialog>
 
-  <!-- SCRIPTS (keep at the bottom) -->
+  <!-- ADD EVENT WINDOW -->
+  <dialog id="add-dialog">
+    <h2>Add an event</h2>
+
+    <label>Type
+      <select id="add-type">
+        <option value="food">Free food</option>
+        <option value="popup">Pop-up</option>
+        <option value="leftover">Leftovers (orgs only)</option>
+      </select>
+    </label>
+
+    <label>What is it?
+      <input id="add-name" type="text" placeholder="Pizza, Poppi, donuts...">
+    </label>
+
+    <label>Where?
+  <input id="add-place" type="text" placeholder="MSC, Zachry, Kyle Field lawn...">
+</label>
+
+<label>Room number (optional)
+  <input id="add-room" type="text" placeholder="e.g. 2400">
+</label>
+
+<label id="add-other-label" hidden>Location name
+  <input id="add-other" type="text" placeholder="Building, lawn, parking lot...">
+</label>
+
+
+    <label>Day
+      <select id="add-day">
+        <option value="today">today</option>
+        <option value="tomorrow">tomorrow</option>
+      </select>
+    </label>
+
+    <label>Starts <input id="add-start" type="time"></label>
+    <label>Ends <input id="add-end" type="time"></label>
+
+    <label class="check-row">
+      <input id="add-anon" type="checkbox"> Post as an anonymous tip
+    </label>
+
+    <div class="dialog-buttons">
+      <button class="im-here" id="add-save">Post event</button>
+      <button class="cancel-btn" id="add-cancel">Cancel</button>
+    </div>
+  </dialog>
+
+  <!-- SCRIPTS (keep at the bottom, in this order) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="db.js"></script>
+  <script src="app.js"></script>
   <script src="ui.js"></script>
-<script src="map.js"></script>
+  <script src="map.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
-
-
-

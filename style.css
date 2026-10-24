@@ -89,10 +89,8 @@ padding:8px; }
 /* ---------- map ---------- */
 #map {
   height: 100%;
-  width: 100%;
   border-radius: 12px;
   background-color: #e6dcdc;
-  overflow: hidden;
 }
 
 /* ---------- nearby + events list rows ---------- */
@@ -313,4 +311,21 @@ dialog input[type="range"] {
   font-family: inherit;
   font-size: 18px;
   cursor: pointer;
+}
+
+dialog label.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+dialog label.check-row input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #500000;
+}
+
+dialog label[hidden] {
+  display: none;
 }
