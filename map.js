@@ -187,8 +187,7 @@ function updateNearby(events) {
     const distance = Math.round(ev.distance);
 
     details.textContent =
-      ev.place + " | " +
-      ev.time + " | " +
+      
       distance + " meters away";
 
     row.append(name, details);

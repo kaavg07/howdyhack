@@ -73,7 +73,7 @@ body {
 /* white fill + rose outline (used by Nearby) */
 .light {
   background-color: white;
-  border-color: #dfb5b5;
+  border-color: rgb(223, 181, 181);
 }
 
 /* ---------- each panel's own size ---------- */
@@ -382,4 +382,68 @@ dialog input::placeholder {
 
 .pressed {
   animation: press 0.25s ease;
+}
+
+/* ---------- Nearby scrollbar: thin, rounded, only visible on hover ---------- */
+#nearby::-webkit-scrollbar {
+  width: 10px;
+}
+
+#nearby::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;                    /* keeps it away from the rounded corners */
+}
+
+#nearby::-webkit-scrollbar-thumb {
+  background-color: transparent;     /* invisible by default */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+#nearby:hover::-webkit-scrollbar-thumb {
+  background-color: #dfb5b5;         /* rose, appears when you hover the box */
+}
+
+/* Firefox doesn't support the rules above */
+@supports not selector(::-webkit-scrollbar) {
+  #nearby {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  #nearby:hover {
+    scrollbar-color: #dfb5b5 transparent;
+  }
+}
+#nearby h2 {
+  margin-bottom: 30px;
+}
+
+/* ---------- map: white widget, rose outline, map fills it ---------- */
+#map-panel {
+  background-color: white;
+  border-color: #dfb5b5;
+  padding: 0;
+  overflow: hidden;          /* clips the map to the rounded corners */
+}
+
+#map {
+  height: 100%;
+  border-radius: 0;          /* the panel already rounds the corners */
+  border: none;
+}
+
+/* ---------- chat: white widget, rose outline, rose chat box ---------- */
+#chat {
+  background-color: white;
+  border-color: #dfb5b5;
+}
+
+.chat-box {
+  background-color: #dfb5b5;
+}
+
+dialog input[type="date"] {
+  cursor: pointer;
+  accent-color: #500000;
 }

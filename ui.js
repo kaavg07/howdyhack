@@ -329,19 +329,62 @@ document.getElementById("checkin-save")
 const addDialog = document.getElementById("add-dialog");
 const addBtn = document.getElementById("add-event-btn");
 
-// turns what someone typed ("4", "4:30", "430") plus AM/PM into "16:30"
+// reads "04:30" plus AM/PM and returns 24-hour "16:30", or null if it isn't complete
 function parseTypedTime(text, ampm) {
-  const match = text.trim().match(/^(\d{1,2})(?::?(\d{2}))?$/);
+  const match = text.trim().match(/^(0[1-9]|1[0-2]):([0-5]\d)$/);
   if (!match) return null;
 
-  let h = Number(match[1]);
-  const m = Number(match[2] || 0);
-  if (h < 1 || h > 12 || m > 59) return null;
-
-  h = h % 12;                       // 12 becomes 0
+  let h = Number(match[1]) % 12;               // 12 becomes 0
   if (ampm === "PM") h += 12;
-  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  return String(h).padStart(2, "0") + ":" + match[2];
 }
+
+// ---------- time boxes: only allow a valid 12-hour time as you type ----------
+function maskTime(raw) {
+  const digits = raw.replace(/\D/g, "");
+  let out = "";
+
+  for (const d of digits) {
+    const pos = out.replace(":", "").length;     // digits already in the box
+
+    if (pos === 0) {                             // 1st digit
+      if (d === "0" || d === "1") out += d;
+      else if (/[2-9]/.test(d)) out += "0" + d + ":";   // typing 4 becomes 04:
+      continue;
+    }
+    if (pos === 1) {                             // 2nd digit
+      if (out[0] === "0" && !/[1-9]/.test(d)) continue;   // 01-09 only
+      if (out[0] === "1" && !/[0-2]/.test(d)) continue;   // 10-12 only
+      out += d + ":";                            // colon appears by itself
+      continue;
+    }
+    if (pos === 2) {                             // 3rd digit: 0-5
+      if (!/[0-5]/.test(d)) continue;
+      out += d;
+      continue;
+    }
+    if (pos === 3) {                             // 4th digit: 0-9
+      out += d;
+      continue;
+    }
+    break;
+  }
+  return out;
+}
+
+["add-start", "add-end"].forEach(id => {
+  const box = document.getElementById(id);
+  if (!box) return;
+
+  box.addEventListener("input", e => {
+    let v = maskTime(box.value);
+    // let backspace remove the colon instead of re-adding it
+    if (e.inputType && e.inputType.startsWith("delete") && v.endsWith(":")) {
+      v = v.slice(0, -1);
+    }
+    box.value = v;
+  });
+});
 
 if (addDialog && addBtn) {
   addBtn.addEventListener("click", () => addDialog.showModal());
