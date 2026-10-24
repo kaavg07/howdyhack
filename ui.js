@@ -1,11 +1,22 @@
-// ---------- settings ----------
-const UPDATE_MINUTES = 5;   // bar updates this often. Set to 1 while testing!
+// settings
+const UPDATE_MINUTES = 1;   //updates every time a new rating is added but we'll change this to like 10 min if this actually becomes an app
+
 
 const minutesAgo = m => new Date(Date.now() - m * 60000);
 
-// ---------- fake data (Person B replaces this with Supabase later) ----------
-// busy = current bar position (0 to 1), updatedAt = when the bar last changed,
-// pending = check-ins waiting for the next update
+// ---------- button click animation ----------
+document.addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  btn.classList.remove("pressed");
+  void btn.offsetWidth;                         // restarts the animation on quick repeat clicks
+  btn.classList.add("pressed");
+  setTimeout(() => btn.classList.remove("pressed"), 300);
+});
+
+// fake data
+// busy is current bar position (0 to 1), updatedAt is when the bar last changed,
+// pending is check-ins waiting for the next update
 const events = [
   { day: "Today",    name: "Poppi",  place: "MSC",           time: "4:00PM - 7:00PM",  busy: 0.2, start: "16:00", updatedAt: minutesAgo(5),  pending: [] },
   { day: "Today",    name: "Pizza",  place: "Zachry",        time: "6:00PM - 7:00PM",  busy: 0.7, start: "18:00", updatedAt: minutesAgo(12), pending: [] },
@@ -14,13 +25,24 @@ const events = [
 
 let selectedEvent = null;
 
-// ---------- small helpers ----------
+
 function startLabel(ev) {
   return ev.time.split(" - ")[0];            // "4:00PM - 7:00PM" becomes "4:00PM"
 }
 
 function formatClock(date) {
   return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+// ---------- day names: ignore capitals, keep today before tomorrow ----------
+function dayKey(ev) {
+  return ev.day.toLowerCase();
+}
+
+function sortEvents() {
+  const rank = { today: 0, tomorrow: 1 };
+  events.sort((a, b) =>
+    (rank[dayKey(a)] ?? 2) - (rank[dayKey(b)] ?? 2) || a.start.localeCompare(b.start)
+  );
 }
 
 // ---------- events list ----------
@@ -31,12 +53,12 @@ function renderEvents(list) {
   let selectedItem = null;
 
   list.forEach(ev => {
-    if (ev.day !== lastDay) {
+        if (dayKey(ev) !== lastDay) {
       const label = document.createElement("h3");
       label.className = "day";
-      label.textContent = ev.day;
+      label.textContent = dayKey(ev);
       box.appendChild(label);
-      lastDay = ev.day;
+      lastDay = dayKey(ev);
     }
 
     const item = document.createElement("div");
@@ -171,7 +193,19 @@ if (addDialog && addBtn) {
   addBtn.addEventListener("click", () => addDialog.showModal());
   document.getElementById("add-cancel").addEventListener("click", () => addDialog.close());
       // show the "type it in" box only when "Other" is picked
- 
+   // turns what someone typed ("4", "4:30", "430") plus AM/PM into "16:30"
+  function parseTypedTime(text, ampm) {
+    const match = text.trim().match(/^(\d{1,2})(?::?(\d{2}))?$/);
+    if (!match) return null;
+
+    let h = Number(match[1]);
+    const m = Number(match[2] || 0);
+    if (h < 1 || h > 12 || m > 59) return null;
+
+    h = h % 12;                       // 12 becomes 0
+    if (ampm === "PM") h += 12;
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  }
   function formatTime(t) {
     let [h, m] = t.split(":").map(Number);
     const ampm = h >= 12 ? "PM" : "AM";
@@ -181,8 +215,10 @@ if (addDialog && addBtn) {
 
   document.getElementById("add-save").addEventListener("click", () => {
   const name  = document.getElementById("add-name").value.trim();
-  const start = document.getElementById("add-start").value;
-  const end   = document.getElementById("add-end").value;
+    const start = parseTypedTime(document.getElementById("add-start").value,
+                               document.getElementById("add-start-ampm").value);
+  const end   = parseTypedTime(document.getElementById("add-end").value,
+                               document.getElementById("add-end-ampm").value);
 
     const place = document.getElementById("add-place").value.trim();
   const room  = document.getElementById("add-room").value.trim();
@@ -207,12 +243,13 @@ if (addDialog && addBtn) {
     });
 
     const rank = { today: 0, tomorrow: 1 };
-    events.sort((a, b) =>
-      (rank[a.day] ?? 2) - (rank[b.day] ?? 2) || a.start.localeCompare(b.start)
-    );
+     sortEvents();
 
     renderEvents(events);
     renderNearby(events);
+
+        document.getElementById("add-start").value = "";
+    document.getElementById("add-end").value = "";
        document.getElementById("add-name").value = "";
     document.getElementById("add-place").value = "";
     document.getElementById("add-room").value = "";

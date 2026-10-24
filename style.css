@@ -272,7 +272,7 @@ dialog select {
   display: block;
   width: 100%;
   margin-top: 4px;
-  padding: 8px 10px;
+  padding: 11px 6px 7px 6px;
   font-family: inherit;
   font-size: 16px;
   border: 2px solid #500000;
@@ -328,4 +328,58 @@ dialog label.check-row input {
 
 dialog label[hidden] {
   display: none;
+}
+
+/* ---------- time boxes ---------- */
+.time-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.time-row input,
+.time-row select {
+  margin-top: 0;
+}
+
+.time-row input {
+  flex: 1;
+}
+
+.time-row select {
+  width: 90px;
+  flex: none;
+}
+
+dialog input::placeholder {
+  color: #a39595;
+}
+
+/* ---------- button feedback ---------- */
+.topbar button,
+.im-here,
+.cancel-btn {
+  transition: background-color 0.15s;
+}
+
+/* darken on hover */
+
+
+.im-here:hover {
+  background-color: #2e0000;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(80, 0, 0, 0.15);
+}
+
+/* shrink, then back to normal (JS adds the "pressed" class on click) */
+@keyframes press {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.pressed {
+  animation: press 0.25s ease;
 }

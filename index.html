@@ -135,9 +135,25 @@
       </select>
     </label>
 
-    <label>Starts <input id="add-start" type="time"></label>
-    <label>Ends <input id="add-end" type="time"></label>
+    <label>Starts
+  <div class="time-row">
+    <input id="add-start" type="text" inputmode="numeric" placeholder="4:00" maxlength="5">
+    <select id="add-start-ampm">
+      <option>AM</option>
+      <option selected>PM</option>
+    </select>
+  </div>
+</label>
 
+<label>Ends
+  <div class="time-row">
+    <input id="add-end" type="text" inputmode="numeric" placeholder="6:00" maxlength="5">
+    <select id="add-end-ampm">
+      <option>AM</option>
+      <option selected>PM</option>
+    </select>
+  </div>
+</label>
     <label class="check-row">
       <input id="add-anon" type="checkbox"> Post as an anonymous tip
     </label>
