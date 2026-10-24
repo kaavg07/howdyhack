@@ -1,0 +1,194 @@
+/* ---------- page basics ---------- */
+body {
+  margin: 0;
+  background-color: #e6dcdc;
+  font-family: "Josefin Sans", sans-serif;
+  color: #3a0a0a;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  background-color: #500000;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.topbar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-family: inherit;
+  font-size: 20px;
+  letter-spacing: 1px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.material-symbols-outlined {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.label {
+  position: relative;
+  top: 4px;          /* nudges "Add Event" down; change to taste */
+}
+
+/* ---------- layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- shared panel look (rose fill + white outline) ---------- */
+.panel {
+  background-color: #dfb5b5;
+  border: 8px solid white;
+  border-radius: 20px;
+  padding: 16px 24px 24px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 48px;
+  font-weight: 600;
+  color: #500000;
+}
+
+/* white fill + rose outline (used by Nearby) */
+.light {
+  background-color: white;
+  border-color: #dfb5b5;
+}
+
+/* ---------- each panel's own size ---------- */
+#nearby    { height: 220px; overflow-y: auto; }
+#map-panel { height: 340px;
+padding:8px; }
+#events    { height: 380px; overflow-y: auto; padding-right: 320px; }
+#chat      { height: 260px; }
+
+.day {
+  color: #7a6060;
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0 0 8px;
+}
+
+/* ---------- map ---------- */
+#map {
+  height: 100%;
+  border-radius: 12px;
+  background-color: #e6dcdc;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- nearby + events list rows ---------- */
+#nearby-list {
+  font-size: 24px;
+}
+
+.event-item {
+  padding: 10px 14px;
+  font-size: 24px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.event-item:hover {
+  background-color: #c18f8f;
+}
+
+/* ---------- events popup ---------- */
+.events-wrap {
+  position: relative;
+}
+
+.popup {
+  position: absolute;
+  top: 130px;
+  right: -20px;
+  width: 300px;
+  background-color: white;
+  border: 6px solid #500000;
+  border-radius: 16px;
+  padding: 16px 20px 20px;
+}
+
+.popup[hidden] {
+  display: none;
+}
+
+.popup h3 {
+  margin: 0 0 4px;
+  font-size: 28px;
+}
+
+.popup p {
+  margin: 2px 0;
+  font-size: 18px;
+}
+
+/* ---------- busy bar + I'm Here button ---------- */
+.busy-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.busy-bar {
+  position: relative;
+  height: 20px;
+  margin: 4px 0 24px;
+  border: 3px solid #500000;
+  border-radius: 4px;
+  background: linear-gradient(to right, #3fbf4a, #e9e227, #e0614f);
+}
+
+.busy-marker {
+  position: absolute;
+  top: -6px;
+  left: 20%;
+  width: 8px;
+  height: 26px;
+  background-color: #500000;
+  transform: translateX(-50%);
+}
+
+.im-here {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 40px;
+  background-color: #500000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 20px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* ---------- chat ---------- */
+.chat-box {
+  background-color: white;
+  border-radius: 12px;
+  height: 150px;
+  overflow-y: auto;
+}

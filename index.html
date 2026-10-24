@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Food Finder</title>
+
+  <!-- Fonts and icons (must come before style.css) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button aria-label="Profile">
+      <span class="material-symbols-outlined">person</span>
+    </button>
+
+    <button>
+      <span class="material-symbols-outlined">add</span>
+      <span class="label">Add Event</span>
+    </button>
+  </header>
+
+  <!-- PAGE LAYOUT: two columns -->
+  <main class="layout">
+
+    <!-- LEFT COLUMN -->
+    <div class="column">
+
+      <section class="panel light" id="nearby">
+        <h2>Nearby</h2>
+        <div id="nearby-list"></div>
+      </section>
+
+      <section class="panel" id="map-panel">
+        <div id="map">Map goes here</div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="column">
+
+      <div class="events-wrap">
+
+        <section class="panel" id="events">
+          <h2>Events</h2>
+          <div id="events-list"></div>
+        </section>
+
+        <!-- Popup: hidden until an event is clicked -->
+        <aside class="popup" id="event-popup" hidden>
+          <h3 id="pop-name"></h3>
+          <p id="pop-place"></p>
+          <p id="pop-time"></p>
+
+          <label class="busy-label">busy?</label>
+          <div class="busy-bar">
+            <div class="busy-marker" id="busy-marker"></div>
+          </div>
+
+          <button class="im-here" id="im-here-btn">I'm Here!</button>
+        </aside>
+
+      </div>
+
+      <section class="panel" id="chat">
+        <h2>Chat</h2>
+        <div class="chat-box" id="chat-box"></div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- SCRIPTS (keep at the bottom) -->
+  <script src="ui.js"></script>
+</body>
+</html>
