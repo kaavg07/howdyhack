@@ -1,4 +1,6 @@
-async function testConnection() {
+async function loadEvents() {
+    console.log("loadEvents running");
+
     const { data, error } =
         await window.supabaseClient
             .from('events')
@@ -7,5 +9,3 @@ async function testConnection() {
     console.log(data);
     console.log(error);
 }
-
-testConnection();
