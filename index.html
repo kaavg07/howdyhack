@@ -55,16 +55,17 @@
 
         <!-- Popup: hidden until an event is clicked -->
         <aside class="popup" id="event-popup" hidden>
-          <h3 id="pop-name"></h3>
-          <p id="pop-place"></p>
-          <p id="pop-time"></p>
+            <h3 id="pop-name"></h3>
+            <p id="pop-place"></p>
+            <p id="pop-time"></p>
 
-          <label class="busy-label">busy?</label>
-          <div class="busy-bar">
-            <div class="busy-marker" id="busy-marker"></div>
-          </div>
+            <label class="busy-label">busy?</label>
+            <div class="busy-bar">
+                <div class="busy-marker" id="busy-marker"></div>
+            </div>
+            <p class="popup-updated" id="pop-updated"></p>
 
-          <button class="im-here" id="im-here-btn">I'm Here!</button>
+        <button class="im-here" id="im-here-btn">I'm Here!</button>
         </aside>
 
       </div>
@@ -77,6 +78,21 @@
     </div>
 
   </main>
+
+  <dialog id="checkin-dialog">
+  <h2>You're here!</h2>
+  <p id="checkin-event"></p>
+
+  <label>How busy is it?
+    <input id="checkin-slider" type="range" min="0" max="100" value="50">
+  </label>
+  <div class="slider-labels"><span>Empty</span><span>Packed</span></div>
+
+  <div class="dialog-buttons">
+    <button class="im-here" id="checkin-save">Send check-in</button>
+    <button class="cancel-btn" id="checkin-cancel">Cancel</button>
+  </div>
+</dialog>
 
   <!-- SCRIPTS (keep at the bottom) -->
   <script src="ui.js"></script>

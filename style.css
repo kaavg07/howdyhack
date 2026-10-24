@@ -77,18 +77,14 @@ body {
 }
 
 /* ---------- each panel's own size ---------- */
-#nearby    { height: 220px; overflow-y: auto; }
+
 #map-panel { height: 340px;
 padding:8px; }
-#events    { height: 380px; overflow-y: auto; padding-right: 320px; }
+#nearby    { height: 260px; overflow-y: auto; display: flex; flex-direction: column; }
+#events    { height: 560px; overflow-y: auto; padding-right: 360px; }
 #chat      { height: 260px; }
 
-.day {
-  color: #7a6060;
-  font-size: 28px;
-  font-weight: 400;
-  margin: 0 0 8px;
-}
+
 
 /* ---------- map ---------- */
 #map {
@@ -100,14 +96,35 @@ padding:8px; }
 }
 
 /* ---------- nearby + events list rows ---------- */
+
+.day {
+  color: #7a6060;
+  font-size: 30px;
+  font-weight: 400;
+  margin: 40px 0 8px;              /* big gap above "tomorrow" */
+}
+
+#events-list .day:first-child {
+  margin-top: 0;                   /* no gap above the first label */
+}
+
 #nearby-list {
-  font-size: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;                       /* space between the two entries */
+  text-align: center;
+  font-size: 32px;
 }
 
 .event-item {
-  padding: 10px 14px;
-  font-size: 24px;
-  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  margin-bottom: 6px;
+  font-size: 32px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
@@ -115,35 +132,67 @@ padding:8px; }
   background-color: #c18f8f;
 }
 
+.event-item.selected {
+  background-color: #c18f8f;
+  border-radius: 12px 0 0 12px;    /* flat right side so it joins the popup */
+}
+
+
+
+
 /* ---------- events popup ---------- */
 .events-wrap {
   position: relative;
 }
 
-.popup {
-  position: absolute;
-  top: 130px;
-  right: -20px;
-  width: 300px;
-  background-color: white;
-  border: 6px solid #500000;
-  border-radius: 16px;
-  padding: 16px 20px 20px;
-}
+
 
 .popup[hidden] {
   display: none;
 }
 
+
+.popup {
+  position: absolute;
+  top: 130px;                      /* ui.js moves this to line up with the selected event */
+  right: -20px;
+  z-index: 5;
+  width: 330px;
+  background-color: white;
+  border: 6px solid #500000;
+  border-radius: 0 18px 18px 18px; /* square top-left so the tail connects */
+  padding: 22px 26px 26px;
+}
+
+/* the curved tail at the top-left, like your Figma */
+/* straight line along the top of the selected row */
+.popup::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -46px;
+  width: 40px;
+  height: 6px;
+  background-color: #500000;
+}
+
 .popup h3 {
-  margin: 0 0 4px;
-  font-size: 28px;
+  margin: 0 0 16px;                /* bigger gap between "Poppi" and the location */
+  font-size: 38px;
 }
 
 .popup p {
-  margin: 2px 0;
-  font-size: 18px;
+  margin: 4px 0;
+  font-size: 22px;
 }
+
+.popup .popup-updated {
+  margin: 0 0 18px;
+  font-size: 15px;
+  color: #7a6060;
+  white-space: pre-line;           /* lets the line break show */
+}
+
 
 /* ---------- busy bar + I'm Here button ---------- */
 .busy-label {
@@ -191,4 +240,77 @@ padding:8px; }
   border-radius: 12px;
   height: 150px;
   overflow-y: auto;
+}
+
+/* ---------- busy marker animation ---------- */
+.busy-marker { transition: left 0.4s; }
+
+/* ---------- pop-up windows (check-in and add event) ---------- */
+dialog {
+  border: 8px solid #500000;
+  border-radius: 20px;
+  padding: 20px 28px 24px;
+  width: 360px;
+  font-family: inherit;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+dialog h2 {
+  margin: 0 0 8px;
+  color: #500000;
+}
+
+dialog label {
+  display: block;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+dialog input,
+dialog select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 16px;
+  border: 2px solid #500000;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+dialog input[type="range"] {
+  border: none;
+  padding: 0;
+  accent-color: #500000;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #7a6060;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.dialog-buttons .im-here { margin: 0; }
+
+.cancel-btn {
+  background: none;
+  border: 2px solid #500000;
+  color: #500000;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
 }
