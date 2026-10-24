@@ -7,9 +7,9 @@ const minutesAgo = m => new Date(Date.now() - m * 60000);
 // busy = current bar position (0 to 1), updatedAt = when the bar last changed,
 // pending = check-ins waiting for the next update
 const events = [
-  { day: "today",    name: "Poppi",  place: "MSC",           time: "4:00PM - 7:00PM",  busy: 0.2, start: "16:00", updatedAt: minutesAgo(5),  pending: [] },
-  { day: "today",    name: "Pizza",  place: "Zachry",        time: "6:00PM - 7:00PM",  busy: 0.7, start: "18:00", updatedAt: minutesAgo(12), pending: [] },
-  { day: "tomorrow", name: "Donuts", place: "Evans Library", time: "9:00AM - 11:00AM", busy: 0.4, start: "09:00", updatedAt: minutesAgo(30), pending: [] },
+  { day: "Today",    name: "Poppi",  place: "MSC",           time: "4:00PM - 7:00PM",  busy: 0.2, start: "16:00", updatedAt: minutesAgo(5),  pending: [] },
+  { day: "Today",    name: "Pizza",  place: "Zachry",        time: "6:00PM - 7:00PM",  busy: 0.7, start: "18:00", updatedAt: minutesAgo(12), pending: [] },
+  { day: "Tomorrow", name: "Donuts", place: "Evans Library", time: "9:00AM - 11:00AM", busy: 0.4, start: "09:00", updatedAt: minutesAgo(30), pending: [] },
 ];
 
 let selectedEvent = null;
