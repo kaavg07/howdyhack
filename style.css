@@ -89,10 +89,10 @@ padding:8px; }
 /* ---------- map ---------- */
 #map {
   height: 100%;
+  width: 100%;
   border-radius: 12px;
   background-color: #e6dcdc;
-  display: grid;
-  place-items: center;
+  overflow: hidden;
 }
 
 /* ---------- nearby + events list rows ---------- */
