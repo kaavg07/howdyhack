@@ -84,9 +84,8 @@ function dayKey(ev) {
 }
 
 function sortEvents() {
-  const rank = { today: 0, tomorrow: 1 };
   events.sort((a, b) =>
-    (rank[dayKey(a)] ?? 2) - (rank[dayKey(b)] ?? 2) || a.start.localeCompare(b.start_time)
+    a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time)
   );
 }
 
