@@ -818,3 +818,13 @@ dialog input[type="date"] {
 #chat-event-name:empty {
   display: none;
 }
+
+/* popup opens upward when the event is near the bottom of the screen */
+.popup.flip {
+  border-radius: 18px 18px 18px 0;
+}
+
+.popup.flip::before {
+  top: auto;
+  bottom: -6px;
+}
