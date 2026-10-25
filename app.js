@@ -6,8 +6,18 @@ async function loadEvents() {
             .from('events')
             .select('*');
 
-    console.log(data);
     console.log(error);
+
+    data.forEach(row => {
+      row.busy = 0.5;
+      row.updatedAt = new Date();
+      row.pending = [];
+    });
+
+    events.length = 0;
+    data.forEach(row => events.push(row));
+
+    renderEvents(data);
 }
 
 loadEvents();

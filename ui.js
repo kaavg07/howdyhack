@@ -18,36 +18,36 @@ document.addEventListener("click", e => {
 // busy is current bar position (0 to 1), updatedAt is when the bar last changed,
 // pending is check-ins waiting for the next update
 const events = [
-  {
-    day: "Today",
-    name: "Poppi",
-    place: "MSC",
-    time: "4:00PM - 7:00PM",
-    busy: 0.2,
-    start: "16:00",
-    updatedAt: minutesAgo(5),
-    pending: []
-  },
-  {
-    day: "Today",
-    name: "Pizza",
-    place: "Zachry",
-    time: "6:00PM - 7:00PM",
-    busy: 0.7,
-    start: "18:00",
-    updatedAt: minutesAgo(12),
-    pending: []
-  },
-  {
-    day: "Tomorrow",
-    name: "Donuts",
-    place: "Evans Library",
-    time: "9:00AM - 11:00AM",
-    busy: 0.4,
-    start: "09:00",
-    updatedAt: minutesAgo(30),
-    pending: []
-  }
+  // {
+  //   day: "Today",
+  //   name: "Poppi",
+  //   place: "MSC",
+  //   time: "4:00PM - 7:00PM",
+  //   busy: 0.2,
+  //   start: "16:00",
+  //   updatedAt: minutesAgo(5),
+  //   pending: []
+  // },
+  // {
+  //   day: "Today",
+  //   name: "Pizza",
+  //   place: "Zachry",
+  //   time: "6:00PM - 7:00PM",
+  //   busy: 0.7,
+  //   start: "18:00",
+  //   updatedAt: minutesAgo(12),
+  //   pending: []
+  // },
+  // {
+  //   day: "Tomorrow",
+  //   name: "Donuts",
+  //   place: "Evans Library",
+  //   time: "9:00AM - 11:00AM",
+  //   busy: 0.4,
+  //   start: "09:00",
+  //   updatedAt: minutesAgo(30),
+  //   pending: []
+  // }
 ];
 
 let selectedEvent = null;
@@ -56,7 +56,7 @@ let selectedEvent = null;
 /* ---------- HELPER FUNCTIONS ---------- */
 
 function startLabel(ev) {
-  return ev.time.split(" - ")[0];
+  return formatTime(ev.start_time);
 }
 
 function formatClock(date) {
@@ -66,8 +66,21 @@ function formatClock(date) {
   });
 }
 // ---------- day names: ignore capitals, keep today before tomorrow ----------
+function localDateString(d = new Date()) {
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+
 function dayKey(ev) {
-  return ev.day.toLowerCase();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (ev.date === localDateString()) return "today";
+  if (ev.date === localDateString(tomorrow)) return "tomorrow";
+
+  return new Date(ev.date + "T00:00:00")
+    .toLocaleDateString("en-US", { weekday: "long" });
 }
 
 function sortEvents() {
@@ -115,9 +128,9 @@ function renderEvents(list) {
     item.className = "event-item";
 
     item.textContent =
-      ev.name + " @ " +
-      ev.place +
-      (ev.room ? " " + ev.room : "") +
+      ev.free_stuff + " @ " +
+      ev.location +
+      (ev.room_num ? " " + ev.room_num : "") +
       " at " + startLabel(ev);
 
     item.addEventListener("click", () => {
@@ -179,10 +192,10 @@ function selectEvent(ev, item) {
 
 function fillPopup(ev) {
   document.getElementById("pop-name").textContent =
-    ev.name;
+    ev.free_stuff;
 
   document.getElementById("pop-place").textContent =
-    ev.room ? ev.place + " " + ev.room : ev.place;
+    ev.room_num ? ev.location + " " + ev.room_num : ev.location;
 
   document.getElementById("pop-time").textContent =
     ev.time;
@@ -394,7 +407,7 @@ if (addDialog && addBtn) {
   addBtn.addEventListener("click", () => addDialog.showModal());
   document.getElementById("add-cancel").addEventListener("click", () => addDialog.close());
 
-  document.getElementById("add-save").addEventListener("click", () => {
+  document.getElementById("add-save").addEventListener("click",async () => {
     const name  = document.getElementById("add-name").value.trim();
     const start = parseTypedTime(document.getElementById("add-start").value,
                                  document.getElementById("add-start-ampm").value);
@@ -403,28 +416,29 @@ if (addDialog && addBtn) {
     const place = document.getElementById("add-place").value.trim();
     const room  = document.getElementById("add-room").value.trim();
 
-    if (!name || !start || !end || !place) {
+    if (!name || !start || !end || !place || !document.getElementById("add-day").value) {
       alert("Please fill in the name, location, and a start and end time like 4:00.");
       return;
     }
 
-    events.push({
-      id: crypto.randomUUID(),
-      day: document.getElementById("add-day").value,
-      name: name,
-      place: place,
-      room: room,
-      time: formatTime(start) + " - " + formatTime(end),
-      busy: 0.1,
-      type: document.getElementById("add-type").value,
-      anonymous: document.getElementById("add-anon").checked,
-      start: start,
-      updatedAt: new Date(),
-      pending: []
-    });
+    const { error } =
+      await window.supabaseClient
+        .from("events")
+        .insert([
+          {
+            event_type: document.getElementById("add-type").value,
+            free_stuff: name,
+            location: place,
+            room_num: room,
+            date: document.getElementById("add-day").value,
+            start_time: start,
+            end_time: end,
+            active: true
+          }
+        ]);
+        console.log(error);
 
-    sortEvents();
-    renderEvents(events);
+    loadEvents();
     if (window.updateChatEventDropdown) {
   window.updateChatEventDropdown();
 }
@@ -450,8 +464,7 @@ if (addDialog && addBtn) {
 /* ---------- START WEBSITE ---------- */
 
 // Display event list
-sortEvents();
-renderEvents(events);
+loadEvents();
 
 // PHASE 7: Share event data with map.js
 window.getMapEvents = function () {
