@@ -50,10 +50,13 @@ function displayMessage(message) {
   row.className = "chat-message";
   row.dataset.messageId = id;
 
+  const who = document.createElement("strong");
+  who.textContent = (message.name || "anonymous") + ": ";
+
   const text = document.createElement("span");
   text.textContent = message.body || "";
 
-  row.appendChild(text);
+  row.append(who, text);
   chatBox.appendChild(row);
 
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -256,12 +259,26 @@ async function sendMessage() {
 
   sendButton.disabled = true;
 
+   // SUPABASE: must be logged in to post
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    alert("Log in to send messages.");
+    return;
+  }
+
+  // SUPABASE: use the profile username if they have one
+  const { data: prof } = await db
+    .from("profiles").select("username").eq("id", session.user.id).single();
+  const displayName = prof?.username || session.user.email.split("@")[0];
+
+  sendButton.disabled = true;
+
   try {
     const { data, error } = await db
       .from("messages")
       .insert({
         event_id: eventId,
-        name: "anonymous",
+        name: displayName,
         body: body
       })
       .select("id, event_id, name, body, created_at")

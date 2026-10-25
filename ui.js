@@ -14,7 +14,6 @@ document.addEventListener("click", e => {
   setTimeout(() => btn.classList.remove("pressed"), 300);
 });
 
-// fake data
 // busy is current bar position (0 to 1), updatedAt is when the bar last changed,
 // pending is check-ins waiting for the next update
 const events = [];
@@ -34,6 +33,7 @@ function formatClock(date) {
     minute: "2-digit"
   });
 }
+
 // ---------- day names: ignore capitals, keep today before tomorrow ----------
 function localDateString(d = new Date()) {
   return d.getFullYear() + "-" +
@@ -49,7 +49,8 @@ function dayKey(ev) {
   if (ev.date === localDateString(tomorrow)) return "tomorrow";
 
   return new Date(ev.date + "T00:00:00")
-    .toLocaleDateString("en-US", { weekday: "long" });
+    .toLocaleDateString("en-US", { weekday: "long" })
+    .toLowerCase();
 }
 
 function hasEnded(ev) {
