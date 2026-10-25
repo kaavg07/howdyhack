@@ -301,19 +301,36 @@ document.getElementById("checkin-cancel")
 
 
 document.getElementById("checkin-save")
-  .addEventListener("click", () => {
+  .addEventListener("click", async () => {
 
     if (!selectedEvent) return;
 
+    const ev = selectedEvent;
     const value =
       Number(document.getElementById("checkin-slider").value)
       / 100;
 
-    selectedEvent.pending.push(value);
+    // SUPABASE: must be logged in to check in
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) {
+      alert("Log in to check in.");
+      return;
+    }
 
-    maybeUpdate(selectedEvent);
+    // SUPABASE: save the check-in
+    const { error } = await window.supabaseClient
+      .from("checkins")
+      .insert({ event_id: ev.event_id, user_id: session.user.id, busy: value });
 
-    fillPopup(selectedEvent);
+    if (error) {
+      console.error(error);
+      alert("Couldn't save check-in: " + error.message);
+      return;
+    }
+
+    ev.pending.push(value);
+    maybeUpdate(ev);
+    refreshPopup();
 
     checkinDialog.close();
   });
@@ -505,3 +522,28 @@ setInterval(() => {
   live.forEach(ev => events.push(ev));
   renderEvents(events);
 }, 60000);
+
+// SUPABASE: other people's check-ins arrive live
+let myUserId = null;
+window.supabaseClient.auth.getSession().then(({ data }) => {
+  myUserId = data.session?.user.id ?? null;
+});
+window.supabaseClient.auth.onAuthStateChange((_e, session) => {
+  myUserId = session?.user.id ?? null;
+});
+
+window.supabaseClient
+  .channel("checkins-live")
+  .on("postgres_changes",
+      { event: "INSERT", schema: "public", table: "checkins" },
+      payload => {
+        if (payload.new.user_id === myUserId) return;   // already counted locally
+
+        const ev = events.find(e => e.event_id === payload.new.event_id);
+        if (!ev) return;
+
+        ev.pending.push(Number(payload.new.busy));
+        maybeUpdate(ev);
+        refreshPopup();
+      })
+  .subscribe();

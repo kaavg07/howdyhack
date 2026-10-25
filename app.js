@@ -27,6 +27,24 @@ async function loadEvents() {
             });
         });
 
+    // SUPABASE: check-ins from the last 30 minutes decide the busy bar
+    const since = new Date(Date.now() - 30 * 60000).toISOString();
+    const { data: cks, error: ckError } = await window.supabaseClient
+        .from("checkins")
+        .select("event_id, busy, created_at")
+        .gte("created_at", since);
+
+    if (ckError) console.error(ckError);
+
+    events.forEach(ev => {
+        const mine = (cks || []).filter(c => c.event_id === ev.event_id);
+        if (mine.length === 0) return;
+
+        ev.busy = mine.reduce((sum, c) => sum + Number(c.busy), 0) / mine.length;
+        ev.updatedAt = new Date(Math.max(...mine.map(c => new Date(c.created_at))));
+        ev.pending = [];
+    });
+
     sortEvents();
     renderEvents(events);
 }
