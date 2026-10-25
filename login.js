@@ -10,6 +10,10 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
     error.textContent = "Please fill in every box.";
     return;
   }
+  if (!/^[^\s@]+@tamu\.edu$/i.test(email)) {
+    error.textContent = "Invalid email";
+    return;
+  }
 
   btn.disabled = true;
 

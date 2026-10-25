@@ -13,6 +13,10 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
     error.textContent = "Please fill in every box.";
     return;
   }
+  if (!/^[^\s@]+@tamu\.edu$/i.test(email)) {
+    error.textContent = "Invalid email";
+    return;
+  }
   if (password.length < 6) {
     error.textContent = "Password needs at least 6 characters.";
     return;
