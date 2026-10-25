@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in - TamuFree</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="index.html" aria-label="Home">
+      <span class="material-symbols-outlined">home</span>
+    </a>
+  </header>
+
+  <main class="auth-wrap">
+    <section class="panel light auth-card">
+      <h2>log in to tamufree!</h2>
+
+      <label>email
+        <input id="auth-email" type="email">
+      </label>
+
+      <label>password
+        <input id="auth-password" type="password">
+      </label>
+
+      <p class="auth-error" id="auth-error"></p>
+
+      <button class="auth-btn" id="auth-submit">log in</button>
+      <a class="auth-link" href="signup.html">New here? Create an account</a>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="db.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

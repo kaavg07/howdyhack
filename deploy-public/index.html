@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Food Finder</title>
+
+  <!-- Map library (Leaflet) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Fonts and icons (must come before style.css) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a href="profile.html" id="profile-btn" aria-label="Profile">
+  <span class="material-symbols-outlined">person</span>
+</a>
+
+    <button id="add-event-btn">
+      <span class="material-symbols-outlined">add</span>
+      <span class="label">add event</span>
+    </button>
+  </header>
+
+ 
+
+  
+
+  <!-- PAGE LAYOUT: two columns -->
+  <main class="layout">
+
+    
+    <!-- LEFT COLUMN -->
+    <div class="column">
+
+      <section class="panel light" id="nearby">
+        <h2>nearby</h2>
+        <div id="nearby-list"></div>
+      </section>
+
+      <section class="panel" id="map-panel">
+        <div id="map"></div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="column">
+
+      <div class="events-wrap">
+
+        <section class="panel" id="events">
+          <h2>events</h2>
+          <div id="events-list"></div>
+        </section>
+
+        <!-- Popup: hidden until an event is clicked -->
+        <aside class="popup" id="event-popup" hidden>
+          <h3 id="pop-name"></h3>
+          <p id="pop-place"></p>
+          <p id="pop-time"></p>
+
+          <label class="busy-label">busy?</label>
+          <div class="busy-bar">
+            <div class="busy-marker" id="busy-marker"></div>
+          </div>
+          <p class="popup-updated" id="pop-updated"></p>
+
+          <button class="im-here" id="im-here-btn">i'm here!</button>
+        </aside>
+
+      </div>
+
+      
+
+
+
+<!-- ---------- PHASE 8: EVENT CHAT ---------- -->
+<section class="panel" id="chat">
+  <h2>Chat</h2>
+
+  <select id="chat-event-select">
+    <option value="">select an event...</option>
+  </select>
+
+  <h3 id="chat-event-name"></h3>
+
+  <div class="chat-box" id="chat-box">
+    choose an event to view messages.
+  </div>
+
+  <input
+    id="chat-message"
+    type="text"
+    placeholder="Type a message..."
+    maxlength="500"
+  >
+
+  <button id="chat-send" type="button" disabled>
+    send
+  </button>
+</section>
+
+
+
+
+
+  </div>
+  </main>
+
+  <!-- CHECK-IN WINDOW -->
+  <dialog id="checkin-dialog">
+    <h2>you're here!</h2>
+    <p id="checkin-event"></p>
+
+    <label>how busy is it?
+      <input id="checkin-slider" type="range" min="0" max="100" value="50">
+    </label>
+    <div class="slider-labels"><span>empty</span><span>packed</span></div>
+
+    <div class="dialog-buttons">
+      <button class="im-here" id="checkin-save">send check-in</button>
+      <button class="cancel-btn" id="checkin-cancel">cancel</button>
+    </div>
+  </dialog>
+
+  <!-- ADD EVENT WINDOW -->
+  <dialog id="add-dialog">
+    <h2>add an event</h2>
+
+    <label>type
+      <select id="add-type">
+        <option value="food">free food</option>
+        <option value="popup">pop-up</option>
+        <option value="leftover">leftovers (orgs only)</option>
+      </select>
+    </label>
+
+    <label>what is it?
+      <input id="add-name" type="text" placeholder="Pizza, Poppi, donuts...">
+    </label>
+
+   <label>where?
+  <div class="place-box">
+    <input id="add-place" type="text" autocomplete="off" placeholder="MSC, Zachry, Kyle Field lawn...">
+    <div class="place-menu" id="place-menu" hidden></div>
+  </div>
+</label>
+
+<label>room number (optional)
+  <input id="add-room" type="text" placeholder="e.g. 2400">
+</label>
+
+<label id="add-other-label" hidden>location name
+  <input id="add-other" type="text" placeholder="Building, lawn, parking lot...">
+</label>
+
+
+    <label>date
+  <input id="add-day" type="date">
+</label>
+
+<label>starts
+  <div class="time-row">
+    <input id="add-start" type="text" inputmode="numeric" placeholder="04:00" maxlength="5">
+    <select id="add-start-ampm">
+      <option>AM</option>
+      <option selected>PM</option>
+    </select>
+  </div>
+</label>
+
+<label>ends
+  <div class="time-row">
+    <input id="add-end" type="text" inputmode="numeric" placeholder="06:00" maxlength="5">
+    <select id="add-end-ampm">
+      <option>AM</option>
+      <option selected>PM</option>
+    </select>
+  </div>
+</label>
+
+
+    
+    <div class="dialog-buttons">
+      <button class="im-here" id="add-save">post event</button>
+      <button class="cancel-btn" id="add-cancel">cancel</button>
+    </div>
+  </dialog>
+
+  <!-- SCRIPTS (keep at the bottom, in this order) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+  <script src="ui.js"></script>
+  <script src="map.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
