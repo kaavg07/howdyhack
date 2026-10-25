@@ -6,16 +6,26 @@ async function loadEvents() {
             .from('events')
             .select('*');
 
-    console.log(error);
+    if (error) {
+        console.error(error);
+        return;
+    }
 
-    data.forEach(row => {
-      row.busy = 0.5;
-      row.updatedAt = new Date();
-      row.pending = [];
-    });
+    // keep busy ratings for events we already had, so a reload doesn't reset them
+    const old = new Map(events.map(e => [e.id, e]));
 
     events.length = 0;
-    data.forEach(row => events.push(row));
+    data
+        .filter(row => !hasEnded(row))      // hide events that already ended
+        .forEach(row => {
+            const prev = old.get(row.id);
+            events.push({
+                ...row,
+                busy: prev?.busy ?? 0.5,
+                updatedAt: prev?.updatedAt ?? new Date(),
+                pending: prev?.pending ?? []
+            });
+        });
 
     sortEvents();
     renderEvents(events);

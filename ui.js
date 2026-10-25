@@ -17,38 +17,7 @@ document.addEventListener("click", e => {
 // fake data
 // busy is current bar position (0 to 1), updatedAt is when the bar last changed,
 // pending is check-ins waiting for the next update
-const events = [
-  // {
-  //   day: "Today",
-  //   name: "Poppi",
-  //   place: "MSC",
-  //   time: "4:00PM - 7:00PM",
-  //   busy: 0.2,
-  //   start: "16:00",
-  //   updatedAt: minutesAgo(5),
-  //   pending: []
-  // },
-  // {
-  //   day: "Today",
-  //   name: "Pizza",
-  //   place: "Zachry",
-  //   time: "6:00PM - 7:00PM",
-  //   busy: 0.7,
-  //   start: "18:00",
-  //   updatedAt: minutesAgo(12),
-  //   pending: []
-  // },
-  // {
-  //   day: "Tomorrow",
-  //   name: "Donuts",
-  //   place: "Evans Library",
-  //   time: "9:00AM - 11:00AM",
-  //   busy: 0.4,
-  //   start: "09:00",
-  //   updatedAt: minutesAgo(30),
-  //   pending: []
-  // }
-];
+const events = [];
 
 let selectedEvent = null;
 
@@ -81,6 +50,18 @@ function dayKey(ev) {
 
   return new Date(ev.date + "T00:00:00")
     .toLocaleDateString("en-US", { weekday: "long" });
+}
+
+function hasEnded(ev) {
+  const [y, mo, d] = ev.date.split("-").map(Number);
+  const [eh, em]   = ev.end_time.split(":").map(Number);
+
+  const end = new Date(y, mo - 1, d, eh, em);
+
+  // an event like 11:00 PM to 1:00 AM ends the next day
+  if (ev.end_time < ev.start_time) end.setDate(end.getDate() + 1);
+
+  return end <= new Date();
 }
 
 function sortEvents() {
@@ -503,19 +484,6 @@ window.getMapEvents = function () {
 
 /* ---------- PHASE 8: CHAT INTEGRATION ---------- */
 
-// Give sample events stable IDs
-
-
-// events.forEach(event => {
-//   if (event.id == null) {
-//     const key = event.name + "|" + event.place;
-
-//     event.id =
-//       chatSampleIds[key] ||
-//       crypto.randomUUID();
-//   }
-// });
-
 // Update chat dropdown after adding a new event
 const originalRenderEvents = renderEvents;
 
@@ -526,3 +494,13 @@ renderEvents = function(list) {
     window.updateChatEventDropdown();
   }
 };
+
+// every minute, drop events that have ended and redraw
+setInterval(() => {
+  const live = events.filter(ev => !hasEnded(ev));
+  if (live.length === events.length) return;
+
+  events.length = 0;
+  live.forEach(ev => events.push(ev));
+  renderEvents(events);
+}, 60000);
