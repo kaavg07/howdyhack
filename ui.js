@@ -86,7 +86,7 @@ function dayKey(ev) {
 function sortEvents() {
   const rank = { today: 0, tomorrow: 1 };
   events.sort((a, b) =>
-    (rank[dayKey(a)] ?? 2) - (rank[dayKey(b)] ?? 2) || a.start.localeCompare(b.start)
+    (rank[dayKey(a)] ?? 2) - (rank[dayKey(b)] ?? 2) || a.start.localeCompare(b.start_time)
   );
 }
 
@@ -197,8 +197,8 @@ function fillPopup(ev) {
   document.getElementById("pop-place").textContent =
     ev.room_num ? ev.location + " " + ev.room_num : ev.location;
 
-  document.getElementById("pop-time").textContent =
-    ev.time;
+    document.getElementById("pop-time").textContent =
+    formatTime(ev.start_time) + " - " + formatTime(ev.end_time);
 
   document.getElementById("busy-marker").style.left =
     (ev.busy * 100) + "%";
@@ -301,11 +301,9 @@ document.getElementById("im-here-btn")
 
     document.getElementById("checkin-event")
       .textContent =
-      selectedEvent.name + " @ " +
-      selectedEvent.place +
-      (selectedEvent.room
-        ? " " + selectedEvent.room
-        : "");
+        selectedEvent.free_stuff + " @ " +
+  selectedEvent.location +
+  (selectedEvent.room_num ? " " + selectedEvent.room_num : "");
 
     document.getElementById("checkin-slider").value =
       Math.round(selectedEvent.busy * 100);
@@ -504,11 +502,7 @@ window.getMapEvents = function () {
 /* ---------- PHASE 8: CHAT INTEGRATION ---------- */
 
 // Give sample events stable IDs
-const chatSampleIds = {
-  "Poppi|MSC": "poppi-msc",
-  "Pizza|Zachry": "pizza-zachry",
-  "Donuts|Evans Library": "donuts-evans"
-};
+
 
 events.forEach(event => {
   if (event.id == null) {

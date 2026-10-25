@@ -78,14 +78,14 @@ window.updateChatEventDropdown = function() {
   placeholder.textContent = "Select an event...";
   eventSelect.appendChild(placeholder);
 
-  events.forEach(event => {
-    if (event.id == null) return;
+    events.forEach(event => {
+    if (event.event_id == null) return;
 
     const option = document.createElement("option");
 
-    option.value = String(event.id);
+    option.value = String(event.event_id);
     option.textContent =
-      event.name + " @ " + event.place;
+      event.free_stuff + " @ " + event.location;
 
     eventSelect.appendChild(option);
   });
@@ -102,13 +102,13 @@ window.updateChatEventDropdown = function() {
 // ---------- OPEN SELECTED EVENT CHAT ----------
 
 window.openEventChat = async function(event) {
-  if (event.id == null) {
+  if (event.event_id == null) {
     chatBox.textContent =
       "This event does not have an ID.";
     return;
   }
 
-  const eventId = String(event.id);
+  const eventId = String(event.event_id);
 
   if (
     activeChatEventId === eventId &&
@@ -125,7 +125,7 @@ window.openEventChat = async function(event) {
   activeChatEventId = eventId;
 
   eventSelect.value = eventId;
-  chatTitle.textContent = "Chat: " + event.name;
+  chatTitle.textContent = "Chat: " + event.free_stuff;
   chatBox.textContent = "Loading messages...";
   sendButton.disabled = true;
 
@@ -218,10 +218,10 @@ window.openEventChat = async function(event) {
   } catch (error) {
     if (version !== chatVersion) return;
 
-    console.error("Chat loading error:", error);
+    console.error("chat loading error:", error);
 
     chatBox.textContent =
-      "Could not load chat. Check Supabase connection.";
+      "could not load chat. check Supabase connection.";
 
     if (chatChannel) {
       const failedChannel = chatChannel;
@@ -240,17 +240,17 @@ async function sendMessage() {
   const eventId = activeChatEventId;
 
   if (!db || !eventId) {
-    alert("Please select an event first.");
+    alert("please select an event first.");
     return;
   }
 
   if (!body) {
-    alert("Please enter a message.");
+    alert("please enter a message.");
     return;
   }
 
   if (body.length > 500) {
-    alert("Message is too long.");
+    alert("message is too long.");
     return;
   }
 
@@ -261,7 +261,7 @@ async function sendMessage() {
       .from("messages")
       .insert({
         event_id: eventId,
-        name: "Anonymous",
+        name: "anonymous",
         body: body
       })
       .select("id, event_id, name, body, created_at")
@@ -278,8 +278,8 @@ async function sendMessage() {
     }
 
   } catch (error) {
-    console.error("Send error:", error);
-    alert("Could not send message.");
+    console.error("send error:", error);
+    alert("could not send message.");
 
   } finally {
     if (
@@ -302,7 +302,7 @@ eventSelect.addEventListener("change", () => {
     : [];
 
   const selected = events.find(event =>
-    String(event.id) === eventSelect.value
+        String(event.event_id) === eventSelect.value
   );
 
   if (selected) {
@@ -319,9 +319,9 @@ eventSelect.addEventListener("change", () => {
     chatChannel = null;
     activeChatEventId = null;
 
-    chatTitle.textContent = "Select an event";
+    chatTitle.textContent = "select an event";
     chatBox.textContent =
-      "Choose an event to view messages.";
+      "choose an event to view messages.";
 
     sendButton.disabled = true;
   }

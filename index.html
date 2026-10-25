@@ -26,7 +26,7 @@
 
     <button id="add-event-btn">
       <span class="material-symbols-outlined">add</span>
-      <span class="label">Add Event</span>
+      <span class="label">add event</span>
     </button>
   </header>
 
@@ -42,7 +42,7 @@
     <div class="column">
 
       <section class="panel light" id="nearby">
-        <h2>Nearby</h2>
+        <h2>nearby</h2>
         <div id="nearby-list"></div>
       </section>
 
@@ -58,7 +58,7 @@
       <div class="events-wrap">
 
         <section class="panel" id="events">
-          <h2>Events</h2>
+          <h2>events</h2>
           <div id="events-list"></div>
         </section>
 
@@ -74,7 +74,7 @@
           </div>
           <p class="popup-updated" id="pop-updated"></p>
 
-          <button class="im-here" id="im-here-btn">I'm Here!</button>
+          <button class="im-here" id="im-here-btn">i'm here!</button>
         </aside>
 
       </div>
@@ -87,18 +87,14 @@
 <section class="panel" id="chat">
   <h2>Chat</h2>
 
-  <label for="chat-event-select">
-    Choose an event to discuss:
-  </label>
-
   <select id="chat-event-select">
-    <option value="">Select an event...</option>
+    <option value="">select an event...</option>
   </select>
 
-  <h3 id="chat-event-name">Select an event</h3>
+  <h3 id="chat-event-name"></h3>
 
   <div class="chat-box" id="chat-box">
-    Choose an event to view messages.
+    choose an event to view messages.
   </div>
 
   <input
@@ -109,7 +105,7 @@
   >
 
   <button id="chat-send" type="button" disabled>
-    Send
+    send
   </button>
 </section>
 
@@ -122,57 +118,57 @@
 
   <!-- CHECK-IN WINDOW -->
   <dialog id="checkin-dialog">
-    <h2>You're here!</h2>
+    <h2>you're here!</h2>
     <p id="checkin-event"></p>
 
-    <label>How busy is it?
+    <label>how busy is it?
       <input id="checkin-slider" type="range" min="0" max="100" value="50">
     </label>
-    <div class="slider-labels"><span>Empty</span><span>Packed</span></div>
+    <div class="slider-labels"><span>empty</span><span>packed</span></div>
 
     <div class="dialog-buttons">
-      <button class="im-here" id="checkin-save">Send check-in</button>
-      <button class="cancel-btn" id="checkin-cancel">Cancel</button>
+      <button class="im-here" id="checkin-save">send check-in</button>
+      <button class="cancel-btn" id="checkin-cancel">cancel</button>
     </div>
   </dialog>
 
   <!-- ADD EVENT WINDOW -->
   <dialog id="add-dialog">
-    <h2>Add an event</h2>
+    <h2>add an event</h2>
 
-    <label>Type
+    <label>type
       <select id="add-type">
-        <option value="food">Free food</option>
-        <option value="popup">Pop-up</option>
-        <option value="leftover">Leftovers (orgs only)</option>
+        <option value="food">free food</option>
+        <option value="popup">pop-up</option>
+        <option value="leftover">leftovers (orgs only)</option>
       </select>
     </label>
 
-    <label>What is it?
+    <label>what is it?
       <input id="add-name" type="text" placeholder="Pizza, Poppi, donuts...">
     </label>
 
-   <label>Where?
+   <label>where?
   <div class="place-box">
     <input id="add-place" type="text" autocomplete="off" placeholder="MSC, Zachry, Kyle Field lawn...">
     <div class="place-menu" id="place-menu" hidden></div>
   </div>
 </label>
 
-<label>Room number (optional)
+<label>room number (optional)
   <input id="add-room" type="text" placeholder="e.g. 2400">
 </label>
 
-<label id="add-other-label" hidden>Location name
+<label id="add-other-label" hidden>location name
   <input id="add-other" type="text" placeholder="Building, lawn, parking lot...">
 </label>
 
 
-    <label>Date
+    <label>date
   <input id="add-day" type="date">
 </label>
 
-<label>Starts
+<label>starts
   <div class="time-row">
     <input id="add-start" type="text" inputmode="numeric" placeholder="04:00" maxlength="5">
     <select id="add-start-ampm">
@@ -182,7 +178,7 @@
   </div>
 </label>
 
-<label>Ends
+<label>ends
   <div class="time-row">
     <input id="add-end" type="text" inputmode="numeric" placeholder="06:00" maxlength="5">
     <select id="add-end-ampm">
@@ -193,13 +189,10 @@
 </label>
 
 
-    <label class="check-row">
-      <input id="add-anon" type="checkbox"> Post as an anonymous tip
-    </label>
-
+    
     <div class="dialog-buttons">
-      <button class="im-here" id="add-save">Post event</button>
-      <button class="cancel-btn" id="add-cancel">Cancel</button>
+      <button class="im-here" id="add-save">post event</button>
+      <button class="cancel-btn" id="add-cancel">cancel</button>
     </div>
   </dialog>
 

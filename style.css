@@ -783,3 +783,38 @@ dialog input[type="date"] {
 .place-menu div:hover {
   background-color: #dfb5b5;
 }
+/* ---------- Events scrollbar: thin, rounded, white, only visible on hover ---------- */
+#events::-webkit-scrollbar {
+  width: 10px;
+}
+
+#events::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;                    /* keeps it away from the rounded corners */
+}
+
+#events::-webkit-scrollbar-thumb {
+  background-color: transparent;     /* invisible by default */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+#events:hover::-webkit-scrollbar-thumb {
+  background-color: white;           /* appears when you hover the box */
+}
+
+/* Firefox doesn't support the rules above */
+@supports not selector(::-webkit-scrollbar) {
+  #events {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  #events:hover {
+    scrollbar-color: white transparent;
+  }
+}
+
+#chat-event-name:empty {
+  display: none;
+}
