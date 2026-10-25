@@ -111,7 +111,6 @@ function renderEvents(list) {
     item.textContent =
       ev.free_stuff + " @ " +
       ev.location +
-      (ev.room_num ? " " + ev.room_num : "") +
       " at " + startLabel(ev);
 
     item.addEventListener("click", () => {
