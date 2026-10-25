@@ -458,7 +458,36 @@ if (addDialog && addBtn) {
 }
 
 
+/* ---------- PLACE SUGGESTIONS ---------- */
 
+const PLACES = ["MSC", "Zachry", "Evans Library", "Sbisa", "Commons",
+                "Student Rec Center", "Kyle Field", "HEB"];
+
+const placeInput = document.getElementById("add-place");
+const placeMenu  = document.getElementById("place-menu");
+
+function showPlaces() {
+  const q = placeInput.value.trim().toLowerCase();
+  const matches = PLACES.filter(p => p.toLowerCase().includes(q));
+
+  placeMenu.innerHTML = "";
+  matches.forEach(p => {
+    const row = document.createElement("div");
+    row.textContent = p;
+    row.addEventListener("mousedown", e => {
+      e.preventDefault();                 // keeps the input from losing focus first
+      placeInput.value = p;
+      placeMenu.hidden = true;
+    });
+    placeMenu.appendChild(row);
+  });
+
+  placeMenu.hidden = matches.length === 0;
+}
+
+placeInput.addEventListener("focus", showPlaces);
+placeInput.addEventListener("input", showPlaces);
+placeInput.addEventListener("blur", () => { placeMenu.hidden = true; });
 
 
 /* ---------- START WEBSITE ---------- */

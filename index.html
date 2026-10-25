@@ -20,9 +20,9 @@
 
   <!-- TOP BAR -->
   <header class="topbar">
-    <button id="profile-btn" aria-label="Profile">
-      <span class="material-symbols-outlined">person</span>
-    </button>
+    <a href="profile.html" id="profile-btn" aria-label="Profile">
+  <span class="material-symbols-outlined">person</span>
+</a>
 
     <button id="add-event-btn">
       <span class="material-symbols-outlined">add</span>
@@ -152,8 +152,11 @@
       <input id="add-name" type="text" placeholder="Pizza, Poppi, donuts...">
     </label>
 
-    <label>Where?
-  <input id="add-place" type="text" placeholder="MSC, Zachry, Kyle Field lawn...">
+   <label>Where?
+  <div class="place-box">
+    <input id="add-place" type="text" autocomplete="off" placeholder="MSC, Zachry, Kyle Field lawn...">
+    <div class="place-menu" id="place-menu" hidden></div>
+  </div>
 </label>
 
 <label>Room number (optional)
