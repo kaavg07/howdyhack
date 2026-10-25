@@ -17,7 +17,8 @@ async function loadEvents() {
     events.length = 0;
     data.forEach(row => events.push(row));
 
-    renderEvents(data);
+    sortEvents();
+    renderEvents(events);
 }
 
 loadEvents();
