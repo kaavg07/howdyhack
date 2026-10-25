@@ -120,7 +120,7 @@ function renderEvents(list) {
 
     box.appendChild(item);
 
-    if (selectedEvent && ev.id === selectedEvent.id) {
+     if (selectedEvent && ev.event_id === selectedEvent.event_id) {
       selectedEvent = ev;
       selectedItem = item;
     }
@@ -418,6 +418,10 @@ if (addDialog && addBtn) {
       return;
     }
 
+    const spot = Object.entries(PLACES)
+      .find(([n]) => n.toLowerCase() === place.toLowerCase());
+    const coords = spot ? spot[1] : null;
+
     const { error } =
       await window.supabaseClient
         .from("events")
@@ -425,8 +429,10 @@ if (addDialog && addBtn) {
           {
             event_type: document.getElementById("add-type").value,
             free_stuff: name,
-            location: place,
+             location: place,
             room_num: room,
+            latitude:  coords ? coords[0] : null,
+            longitude: coords ? coords[1] : null,
             date: document.getElementById("add-day").value,
             start_time: start,
             end_time: end,
@@ -462,15 +468,23 @@ if (addDialog && addBtn) {
 
 /* ---------- PLACE SUGGESTIONS ---------- */
 
-const PLACES = ["MSC", "Zachry", "Evans Library", "Sbisa", "Commons",
-                "Student Rec Center", "Kyle Field", "HEB"];
+const PLACES = {
+  "MSC":                [30.6129, -96.3413],
+  "Zachry":             [30.6210, -96.3400],
+  "Evans Library":      [30.6164, -96.3398],
+  "Sbisa":              [30.6129, -96.3437],
+  "Commons":            [30.6150, -96.3450],
+  "Student Rec Center": [30.6135, -96.3430],
+  "Kyle Field":         [30.6101, -96.3402],
+  "HEB":                [30.6290, -96.3340]
+};
 
 const placeInput = document.getElementById("add-place");
 const placeMenu  = document.getElementById("place-menu");
 
 function showPlaces() {
   const q = placeInput.value.trim().toLowerCase();
-  const matches = PLACES.filter(p => p.toLowerCase().includes(q));
+    const matches = Object.keys(PLACES).filter(p => p.toLowerCase().includes(q));
 
   placeMenu.innerHTML = "";
   matches.forEach(p => {
