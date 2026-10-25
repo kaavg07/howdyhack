@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile - TamuFree</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="topbar">
+    <a href="index.html" aria-label="Home">
+      <span class="material-symbols-outlined">home</span>
+    </a>
+
+    <button id="profile-logout" class="logout-btn">
+      <span class="label">log out</span>
+    </button>
+  </header>
+
+  <main class="profile-wrap">
+
+    <section class="panel light profile-card">
+      <h2>profile</h2>
+
+      <label>username
+        <input id="profile-username" type="text">
+      </label>
+
+      <label>email
+        <input id="profile-email" type="email">
+      </label>
+
+      <label>phone number
+        <input id="profile-phone" type="tel" inputmode="numeric">
+      </label>
+
+      
+    </section>
+
+    <section class="panel light profile-card">
+      <h2>notification settings</h2>
+
+      <label class="check-line">email
+        <input id="n-email" type="checkbox">
+      </label>
+      <label class="check-line">text
+        <input id="n-text" type="checkbox">
+      </label>
+
+      <div class="topic-box">
+        <label class="check-line">events
+          <input id="n-events" type="checkbox">
+        </label>
+        <label class="check-line">nearby events
+          <input id="n-nearby" type="checkbox">
+        </label>
+        <label class="check-line">chat messages
+          <input id="n-chat" type="checkbox">
+        </label>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="save-row">
+    <button class="auth-btn" id="profile-save">save changes</button>
+    <p class="auth-error" id="profile-msg"></p>
+  </div>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="db.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>

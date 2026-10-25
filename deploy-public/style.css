@@ -1,0 +1,830 @@
+/* ---------- page basics ---------- */
+body {
+  margin: 0;
+  background-color: #e6dcdc;
+  font-family: "Josefin Sans", sans-serif;
+  color: #3a0a0a;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  background-color: #500000;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.topbar button,
+.topbar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-family: inherit;
+  font-size: 20px;
+  letter-spacing: 1px;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.material-symbols-outlined {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.label {
+  position: relative;
+  top: 4px;          /* nudges "Add Event" down; change to taste */
+}
+
+/* ---------- layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- shared panel look (rose fill + white outline) ---------- */
+.panel {
+  background-color: #dfb5b5;
+  border: 8px solid white;
+  border-radius: 20px;
+  padding: 16px 24px 24px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 48px;
+  font-weight: 600;
+  color: #500000;
+}
+
+/* white fill + rose outline (used by Nearby) */
+.light {
+  background-color: white;
+  border-color: rgb(223, 181, 181);
+}
+
+/* ---------- each panel's own size ---------- */
+
+#map-panel { height: 340px;
+padding:8px; }
+#nearby    { height: 260px; overflow-y: auto; display: flex; flex-direction: column; }
+#events    { height: 560px; overflow-y: auto; padding-right: 360px; }
+#chat      { height: 260px; }
+
+
+
+/* ---------- map ---------- */
+#map {
+  height: 100%;
+  border-radius: 12px;
+  background-color: #e6dcdc;
+}
+
+/* ---------- nearby + events list rows ---------- */
+
+.day {
+  color: #7a6060;
+  font-size: 30px;
+  font-weight: 400;
+  margin: 40px 0 8px;              /* big gap above "tomorrow" */
+}
+
+#events-list .day:first-child {
+  margin-top: 0;                   /* no gap above the first label */
+}
+
+#nearby-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;                       /* space between the two entries */
+  text-align: center;
+  font-size: 32px;
+}
+
+.event-item {
+  box-sizing: border-box;
+  padding: 16px 20px;
+  margin-bottom: 6px;
+  font-size: 32px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.event-item:hover {
+  background-color: #c18f8f;
+}
+
+.event-item.selected {
+  background-color: #c18f8f;
+  border-radius: 12px 0 0 12px;    /* flat right side so it joins the popup */
+}
+
+
+
+
+/* ---------- events popup ---------- */
+.events-wrap {
+  position: relative;
+}
+
+
+
+.popup[hidden] {
+  display: none;
+}
+
+
+.popup {
+  position: absolute;
+  top: 130px;                      /* ui.js moves this to line up with the selected event */
+  right: -20px;
+  z-index: 5;
+  width: 330px;
+  background-color: white;
+  border: 6px solid #500000;
+  border-radius: 0 18px 18px 18px; /* square top-left so the tail connects */
+  padding: 22px 26px 26px;
+}
+
+/* the curved tail at the top-left, like your Figma */
+/* straight line along the top of the selected row */
+.popup::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -46px;
+  width: 40px;
+  height: 6px;
+  background-color: #500000;
+}
+
+.popup h3 {
+  margin: 0 0 16px;                /* bigger gap between "Poppi" and the location */
+  font-size: 38px;
+}
+
+.popup p {
+  margin: 4px 0;
+  font-size: 22px;
+}
+
+.popup .popup-updated {
+  margin: 0 0 18px;
+  font-size: 15px;
+  color: #7a6060;
+  white-space: pre-line;           /* lets the line break show */
+}
+
+
+/* ---------- busy bar + I'm Here button ---------- */
+.busy-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.busy-bar {
+  position: relative;
+  height: 20px;
+  margin: 4px 0 24px;
+  border: 3px solid #500000;
+  border-radius: 4px;
+  background: linear-gradient(to right, #3fbf4a, #e9e227, #e0614f);
+}
+
+.busy-marker {
+  position: absolute;
+  top: -6px;
+  left: 20%;
+  width: 8px;
+  height: 26px;
+  background-color: #500000;
+  transform: translateX(-50%);
+}
+
+.im-here {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 40px;
+  background-color: #500000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 20px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* ---------- chat ---------- */
+.chat-box {
+  background-color: white;
+  border-radius: 12px;
+  height: 150px;
+  overflow-y: auto;
+}
+
+/* ---------- busy marker animation ---------- */
+.busy-marker { transition: left 0.4s; }
+
+/* ---------- pop-up windows (check-in and add event) ---------- */
+dialog {
+  border: 8px solid #500000;
+  border-radius: 20px;
+  padding: 20px 28px 24px;
+  width: 360px;
+  font-family: inherit;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+dialog h2 {
+  margin: 0 0 8px;
+  color: #500000;
+}
+
+dialog label {
+  display: block;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+dialog input,
+dialog select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px 6px 7px 6px;
+  font-family: inherit;
+  font-size: 16px;
+  border: 2px solid #500000;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+dialog input[type="range"] {
+  border: none;
+  padding: 0;
+  accent-color: #500000;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #7a6060;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.dialog-buttons .im-here { margin: 0; }
+
+.cancel-btn {
+  background: none;
+  border: 2px solid #500000;
+  color: #500000;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+dialog label.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+dialog label.check-row input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #500000;
+}
+
+dialog label[hidden] {
+  display: none;
+}
+
+/* ---------- time boxes ---------- */
+.time-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.time-row input,
+.time-row select {
+  margin-top: 0;
+}
+
+.time-row input {
+  flex: 1;
+}
+
+.time-row select {
+  width: 90px;
+  flex: none;
+}
+
+dialog input::placeholder {
+  color: #a39595;
+}
+
+/* ---------- button feedback ---------- */
+.topbar button,
+.im-here,
+.cancel-btn {
+  transition: background-color 0.15s;
+}
+
+/* darken on hover */
+
+
+.im-here:hover {
+  background-color: #2e0000;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(80, 0, 0, 0.15);
+}
+
+/* shrink, then back to normal (JS adds the "pressed" class on click) */
+@keyframes press {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.pressed {
+  animation: press 0.25s ease;
+}
+
+/* ---------- Nearby scrollbar: thin, rounded, only visible on hover ---------- */
+#nearby::-webkit-scrollbar {
+  width: 10px;
+}
+
+#nearby::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;                    /* keeps it away from the rounded corners */
+}
+
+#nearby::-webkit-scrollbar-thumb {
+  background-color: transparent;     /* invisible by default */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+#nearby:hover::-webkit-scrollbar-thumb {
+  background-color: #dfb5b5;         /* rose, appears when you hover the box */
+}
+
+/* Firefox doesn't support the rules above */
+@supports not selector(::-webkit-scrollbar) {
+  #nearby {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  #nearby:hover {
+    scrollbar-color: #dfb5b5 transparent;
+  }
+}
+#nearby h2 {
+  margin-bottom: 30px;
+}
+
+/* ---------- map: white widget, rose outline, map fills it ---------- */
+#map-panel {
+  background-color: white;
+  border-color: #dfb5b5;
+  padding: 0;
+  overflow: hidden;          /* clips the map to the rounded corners */
+}
+
+#map {
+  height: 100%;
+  border-radius: 0;          /* the panel already rounds the corners */
+  border: none;
+}
+
+/* ---------- chat: white widget, rose outline, rose chat box ---------- */
+#chat {
+  background-color: white;
+  border-color: #dfb5b5;
+}
+
+.chat-box {
+  background-color: #dfb5b5;
+}
+
+dialog input[type="date"] {
+  cursor: pointer;
+  accent-color: #500000;
+}
+
+
+/* ---------- PHASE 8: CHAT ---------- */
+
+#chat {
+  height: auto;
+  min-height: 350px;
+}
+
+#chat-event-name {
+  color: #500000;
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+
+#chat .chat-box {
+  background-color: white;
+  border-radius: 12px;
+  height: 180px;
+  padding: 12px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.chat-message {
+  background-color: #f3e4e4;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.chat-message strong {
+  color: #500000;
+}
+
+#chat-name,
+#chat-message {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin-top: 10px;
+  border: 2px solid #500000;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+#chat-send {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background-color: #500000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#chat-send:hover {
+  background-color: #700000;
+}
+
+#chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+
+/* ---------- CHAT: MATCH ADD EVENT STYLE ---------- */
+
+#chat label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 18px;
+  color: #3a0a0a;
+}
+
+#chat-event-select {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  padding: 11px 6px 7px 6px;
+
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 16px;
+  color: #3a0a0a;
+
+  background-color: white;
+  border: 2px solid #500000;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#chat-event-name {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #500000;
+  margin: 12px 0;
+}
+
+#chat-message {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 16px;
+  border: 2px solid #500000;
+  border-radius: 6px;
+}
+
+#chat-send {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  background-color: #500000;
+  color: white;
+  border-radius: 6px;
+}
+
+#chat-send:hover {
+  background-color: #2e0000;
+}
+
+/* ---------- sign up / log in pages ---------- */
+.auth-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.auth-card {
+  width: 380px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 32px;
+}
+
+.auth-card h2 {
+  font-size: 32px;
+  text-align: center;
+}
+
+.auth-card label {
+  display: block;
+  margin-top: 14px;
+  font-size: 18px;
+}
+
+.auth-card input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 8px 6px;
+  font-family: inherit;
+  font-size: 16px;
+  background-color: #d9d9d9;
+  border: none;
+  box-sizing: border-box;
+}
+
+.auth-error {
+  min-height: 1.2em;
+  margin: 12px 0 0;
+  font-size: 15px;
+  color: #b00020;
+}
+
+.auth-btn {
+  display: block;
+  margin: 12px auto 0;
+  padding: 10px 24px 6px;
+  background-color: #dfb5b5;
+  color: #500000;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 18px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  background-color: #c18f8f;
+}
+
+.auth-link {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  font-size: 15px;
+  color: #500000;
+}
+/* ---------- profile page ---------- */
+.profile-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;          /* both cards end up the same height */
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 24px 24px 12px;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 475px;             /* card height: change this number */
+  padding: 16px 40px 24px;
+}
+
+.profile-wrap .profile-card:first-child { width: 400px; }   /* profile */
+.profile-wrap .profile-card:last-child  { width: 780px; }   /* notifications */
+
+.profile-card h2 {
+  font-size: 34px;
+  margin-bottom: 4px;
+  white-space: nowrap;           /* keeps "notification settings" on one line */
+}
+
+/* profile fields */
+.profile-card label {
+  display: block;
+  margin-top: 18px;              /* space between fields */
+  font-size: 24px;
+}
+
+.profile-card input:not([type="checkbox"]) {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 6px;
+  padding: 12px 10px 8px;
+  font-family: inherit;
+  font-size: 20px;
+  background-color: #d9d9d9;
+  border: none;
+  box-sizing: border-box;
+}
+
+/* notification rows: label on the left, checkbox on the right */
+.profile-card label.check-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 560px;
+  margin: 28px auto 0;
+  font-size: 26px;
+}
+
+.profile-card input[type="checkbox"] {
+  width: 28px;
+  height: 28px;
+  accent-color: #500000;
+}
+
+/* email and text rows (direct children of the card) */
+.profile-card > label.check-line {
+  max-width: 320px;              /* label-to-checkbox distance */
+  margin-top: 8px;               /* space between email and text */
+}
+
+/* the rose box */
+.topic-box {
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  margin: 24px auto 0;
+  padding: 4px 40px 20px;
+  background-color: #dfb5b5;
+  border-radius: 12px;
+}
+
+.topic-box label.check-line {
+  max-width: none;
+  margin-top: 18px;
+}
+
+/* header log out button */
+.logout-btn {
+  margin-left: auto;             /* pushes it to the right side */
+}
+
+/* save button below both cards */
+.save-row {
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+.save-row .auth-btn {
+  margin-top: 0;
+}
+
+.save-row .auth-error {
+  color: #500000;                /* "Saved!" in maroon, not error red */
+}
+
+/* ---------- place suggestions ---------- */
+.place-box {
+  position: relative;
+}
+
+.place-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 2px;
+  background-color: white;
+  border: 2px solid #500000;
+  border-radius: 6px;
+}
+
+.place-menu div {
+  padding: 10px 8px 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.place-menu div:hover {
+  background-color: #dfb5b5;
+}
+/* ---------- Events scrollbar: thin, rounded, white, only visible on hover ---------- */
+#events::-webkit-scrollbar {
+  width: 10px;
+}
+
+#events::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;                    /* keeps it away from the rounded corners */
+}
+
+#events::-webkit-scrollbar-thumb {
+  background-color: transparent;     /* invisible by default */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+#events:hover::-webkit-scrollbar-thumb {
+  background-color: white;           /* appears when you hover the box */
+}
+
+/* Firefox doesn't support the rules above */
+@supports not selector(::-webkit-scrollbar) {
+  #events {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  #events:hover {
+    scrollbar-color: white transparent;
+  }
+}
+
+#chat-event-name:empty {
+  display: none;
+}
+
+/* popup opens upward when the event is near the bottom of the screen */
+.popup.flip {
+  border-radius: 18px 18px 18px 0;
+}
+
+.popup.flip::before {
+  top: auto;
+  bottom: -6px;
+}

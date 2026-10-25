@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up - TamuFree</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="index.html" aria-label="Home">
+      <span class="material-symbols-outlined">home</span>
+    </a>
+  </header>
+
+  <main class="auth-wrap">
+    <section class="panel light auth-card">
+      <h2>sign up to tamufree!</h2>
+
+      <label>email
+        <input id="auth-email" type="email">
+      </label>
+
+      <label>password
+        <input id="auth-password" type="password">
+      </label>
+
+      <label>username (optional)
+        <input id="auth-username" type="text">
+      </label>
+
+      <p class="auth-error" id="auth-error"></p>
+
+      <button class="auth-btn" id="auth-submit">create account</button>
+      <a class="auth-link" href="login.html">Already have an account? Log in</a>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="db.js"></script>
+  <script src="signup.js"></script>
+</body>
+</html>
