@@ -5,11 +5,11 @@
 // Verify these approximate coordinates in Google Maps.
 // Add any additional buildings from your dropdown.
 
-const buildingLocations = {
-  "MSC": [30.6129, -96.3413],
-  "Zachry": [30.6210, -96.3400],
-  "Evans Library": [30.6164, -96.3398]
-};
+// const buildingLocations = {
+//   "MSC": [30.6129, -96.3413],
+//   "Zachry": [30.6210, -96.3400],
+//   "Evans Library": [30.6164, -96.3398]
+// };
 
 // ---------- CREATE CAMPUS MAP ----------
 
@@ -48,53 +48,26 @@ function getEvents() {
 
 // ---------- ADD EVENT PINS ----------
 
-function refreshMapEvents() {
+// saved coordinates first, then the PLACES list for older events
+function coordsFor(ev) {
+  const lat = Number(ev.latitude);
+  const lng = Number(ev.longitude);
+  if (ev.latitude != null && ev.longitude != null &&
+      Number.isFinite(lat) && Number.isFinite(lng)) {
+    return [lat, lng];
+  }
 
-  // Remove old event markers before redrawing
-  eventMarkers.clearLayers();
+  const spot = Object.entries(PLACES)
+    .find(([n]) => n.toLowerCase() === String(ev.location || "").toLowerCase());
+  return spot ? spot[1] : null;
+}
 
-  const events = getEvents();
-  const locatedEvents = [];
-
-  events.forEach(ev => {
-
-    // Use event coordinates if available,
-    // otherwise look up coordinates by building.
-    const coordinates =
-      Number.isFinite(Number(ev.lat)) &&
-      Number.isFinite(Number(ev.lng)) &&
-      ev.lat != null &&
-      ev.lng != null
-        ? [Number(ev.lat), Number(ev.lng)]
-        : buildingLocations[ev.place];
-
-    if (!coordinates) {
-      console.warn("Missing coordinates for:", ev.place);
-      return;
-    }
-
-    // Save coordinates with this event
-    locatedEvents.push({
-      ...ev,
-      lat: coordinates[0],
-      lng: coordinates[1]
-    });
-
-    // Add marker
-   
 const maroonIcon = L.divIcon({
   className: "maroon-pin",
   html: `
     <svg width="30" height="42" viewBox="0 0 30 42">
-      <path
-        d="M15 1 C7 1 1 7 1 15
-           C1 26 15 40 15 40
-           C15 40 29 26 29 15
-           C29 7 23 1 15 1Z"
-        fill="#500000"
-        stroke="white"
-        stroke-width="2"
-      />
+      <path d="M15 1 C7 1 1 7 1 15 C1 26 15 40 15 40 C15 40 29 26 29 15 C29 7 23 1 15 1Z"
+            fill="#500000" stroke="white" stroke-width="2"/>
       <circle cx="15" cy="15" r="6" fill="white"/>
     </svg>
   `,
@@ -103,32 +76,36 @@ const maroonIcon = L.divIcon({
   popupAnchor: [0, -42]
 });
 
-const marker = L.marker(coordinates, {
-  icon: maroonIcon
-}).addTo(eventMarkers);
+function refreshMapEvents() {
+  eventMarkers.clearLayers();
 
+  const locatedEvents = [];
 
-    // Create popup
+  getEvents().forEach(ev => {
+    const coordinates = coordsFor(ev);
+    if (!coordinates) return;          // free-typed place: in the list, no pin
+
+    locatedEvents.push({ ...ev, lat: coordinates[0], lng: coordinates[1] });
+
+    const marker = L.marker(coordinates, { icon: maroonIcon }).addTo(eventMarkers);
+
     const popup = document.createElement("div");
 
     const name = document.createElement("strong");
-    name.textContent = ev.name;
+    name.textContent = ev.free_stuff;
 
     const place = document.createElement("p");
-    place.textContent = ev.place;
+    place.textContent = ev.room_num ? ev.location + " " + ev.room_num : ev.location;
 
     const time = document.createElement("p");
-    time.textContent = ev.time;
+    time.textContent = formatTime(ev.start_time) + " - " + formatTime(ev.end_time);
 
     popup.append(name, place, time);
-
     marker.bindPopup(popup);
   });
 
-  // Update Nearby whenever events change
   updateNearby(locatedEvents);
 }
-
 
 // ---------- NEARBY EVENTS ----------
 
@@ -180,7 +157,7 @@ function updateNearby(events) {
     row.className = "nearby-event";
 
     const name = document.createElement("strong");
-    name.textContent = ev.name;
+    name.textContent = ev.free_stuff;
 
     const details = document.createElement("div");
 

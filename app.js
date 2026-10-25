@@ -47,6 +47,8 @@ async function loadEvents() {
 
     sortEvents();
     renderEvents(events);
+
+    if (window.refreshMapEvents) window.refreshMapEvents();
 }
 
 loadEvents();

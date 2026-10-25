@@ -521,6 +521,7 @@ setInterval(() => {
   events.length = 0;
   live.forEach(ev => events.push(ev));
   renderEvents(events);
+  if (window.refreshMapEvents) window.refreshMapEvents();
 }, 60000);
 
 // SUPABASE: other people's check-ins arrive live
