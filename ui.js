@@ -444,64 +444,8 @@ if (addDialog && addBtn) {
 }
 
 
-/* ---------- PROFILE ---------- */
 
-const profileDialog = document.getElementById("profile-dialog");
 
-// local stand-in until B's Supabase profiles table exists
-let profile = { name: "", email: "", phone: "", isOrg: false };
-
-document.getElementById("profile-btn").addEventListener("click", () => {
-  document.getElementById("profile-name").value  = profile.name;
-  document.getElementById("profile-email").value = profile.email;
-  document.getElementById("profile-phone").value = profile.phone;
-  document.getElementById("profile-org").checked = profile.isOrg;
-
-  profileDialog.showModal();
-});
-
-document.getElementById("profile-cancel").addEventListener("click", () => {
-  profileDialog.close();
-});
-
-document.getElementById("profile-save").addEventListener("click", () => {
-  profile = {
-    name:  document.getElementById("profile-name").value.trim(),
-    email: document.getElementById("profile-email").value.trim(),
-    phone: document.getElementById("profile-phone").value.trim(),
-    isOrg: document.getElementById("profile-org").checked
-  };
-
-  profileDialog.close();
-});
-
-/* ---------- NOTIFICATION SETTINGS ---------- */
-
-const notifDialog = document.getElementById("notif-dialog");
-const notifIds = ["n-food", "n-events", "n-leftovers", "n-chat", "n-nearby",
-                  "m-text", "m-email", "m-push"];
-
-// local stand-in until B saves these to the profiles table
-let notifSettings = {};
-
-document.getElementById("open-notif-btn").addEventListener("click", () => {
-  profileDialog.close();
-  notifIds.forEach(id => {
-    document.getElementById(id).checked = !!notifSettings[id];
-  });
-  notifDialog.showModal();
-});
-
-document.getElementById("notif-cancel").addEventListener("click", () => {
-  notifDialog.close();
-});
-
-document.getElementById("notif-save").addEventListener("click", () => {
-  notifIds.forEach(id => {
-    notifSettings[id] = document.getElementById(id).checked;
-  });
-  notifDialog.close();
-});
 
 /* ---------- START WEBSITE ---------- */
 
