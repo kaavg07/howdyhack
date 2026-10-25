@@ -754,3 +754,32 @@ dialog input[type="date"] {
 .save-row .auth-error {
   color: #500000;                /* "Saved!" in maroon, not error red */
 }
+
+/* ---------- place suggestions ---------- */
+.place-box {
+  position: relative;
+}
+
+.place-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 2px;
+  background-color: white;
+  border: 2px solid #500000;
+  border-radius: 6px;
+}
+
+.place-menu div {
+  padding: 10px 8px 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.place-menu div:hover {
+  background-color: #dfb5b5;
+}

@@ -152,8 +152,11 @@
       <input id="add-name" type="text" placeholder="Pizza, Poppi, donuts...">
     </label>
 
-    <label>Where?
-  <input id="add-place" type="text" placeholder="MSC, Zachry, Kyle Field lawn...">
+   <label>Where?
+  <div class="place-box">
+    <input id="add-place" type="text" autocomplete="off" placeholder="MSC, Zachry, Kyle Field lawn...">
+    <div class="place-menu" id="place-menu" hidden></div>
+  </div>
 </label>
 
 <label>Room number (optional)
