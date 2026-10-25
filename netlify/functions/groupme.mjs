@@ -250,9 +250,7 @@ ${text}
           headers: {
             "Content-Type": "application/json",
             apikey: supabaseKey,
-            Authorization: "Bearer " + supabaseKey,
             Prefer: "resolution=ignore-duplicates,return=representation"
-          },
           signal: AbortSignal.timeout(10000),
           body: JSON.stringify({
             event_type: "food",
