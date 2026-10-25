@@ -3,6 +3,24 @@
 
 const MODEL = "gemini-3.5-flash-lite";
 
+const PLACES = {
+  "MSC":                [30.6129, -96.3413],
+  "Zachry":             [30.6210, -96.3400],
+  "Evans Library":      [30.6164, -96.3398],
+  "Sbisa":              [30.6129, -96.3437],
+  "Commons":            [30.6150, -96.3450],
+  "Student Rec Center": [30.6135, -96.3430],
+  "Kyle Field":         [30.6101, -96.3402],
+  "HEB":                [30.6290, -96.3340]
+};
+
+const DATE_OK = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_OK = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+function plusTwoHours(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  return String((h + 2) % 24).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+}
 export default async function handler(request) {
 
   // Check that the function is running
@@ -19,7 +37,10 @@ export default async function handler(request) {
   const botId = process.env.GROUPME_BOT_ID;
   const groupId = process.env.GROUPME_GROUP_ID;
 
-  if (!secret || !apiKey || !botId || !groupId) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!secret || !apiKey || !botId || !groupId || !supabaseUrl || !supabaseKey) {
     console.error("Missing environment variables");
     return new Response("Missing configuration", {
       status: 500
@@ -94,6 +115,9 @@ Rules:
 - Use null for missing details.
 - Interpret dates in America/Chicago.
 - Treat results as unverified.
+- date must be YYYY-MM-DD.
+- start_time and end_time must be 24-hour HH:MM.
+- room is a room number only, or null.
 
 Today's date: ${today}
 
@@ -130,11 +154,19 @@ ${text}
                   type: "STRING",
                   nullable: true
                 },
+                room: {
+                  type: "STRING",
+                  nullable: true
+                },
                 date: {
                   type: "STRING",
                   nullable: true
                 },
-                time: {
+                start_time: {
+                  type: "STRING",
+                  nullable: true
+                },
+                end_time: {
                   type: "STRING",
                   nullable: true
                 }
@@ -175,6 +207,65 @@ ${text}
       return new Response("No food event found");
     }
 
+    // ---- save to Supabase ----
+    const todayStr = today;   // YYYY-MM-DD in Chicago time
+    const placeText = String(event.place || "").trim();
+    const known = Object.keys(PLACES).find(n =>
+      placeText.toLowerCase().includes(n.toLowerCase())
+    );
+
+    const usable =
+      event.food && placeText &&
+      DATE_OK.test(event.date || "") && event.date >= todayStr &&
+      TIME_OK.test(event.start_time || "");
+
+    let added = false;
+
+    if (usable) {
+      const coords = known ? PLACES[known] : null;
+      const end = TIME_OK.test(event.end_time || "")
+        ? event.end_time
+        : plusTwoHours(event.start_time);
+
+      const saved = await fetch(
+        supabaseUrl + "/rest/v1/events?on_conflict=groupme_message_id",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: supabaseKey,
+            Authorization: "Bearer " + supabaseKey,
+            Prefer: "resolution=ignore-duplicates,return=representation"
+          },
+          signal: AbortSignal.timeout(10000),
+          body: JSON.stringify({
+            event_type: "food",
+            free_stuff: String(event.food).slice(0, 100),
+            location: known || placeText.slice(0, 100),
+            room_num: event.room || null,
+            latitude: coords ? coords[0] : null,
+            longitude: coords ? coords[1] : null,
+            date: event.date,
+            start_time: event.start_time,
+            end_time: end,
+            active: true,
+            source: "groupme",
+            groupme_message_id: String(message.id)
+          })
+        }
+      );
+
+      if (!saved.ok) {
+        throw new Error("Supabase insert failed: " + await saved.text());
+      }
+
+      const rows = await saved.json();
+      if (rows.length === 0) {
+        return new Response("Duplicate message");   // already added
+      }
+      added = true;
+    }
+    
     const clean = value =>
       String(value || "Not specified")
         .replace(/\s+/g, " ")
@@ -187,9 +278,11 @@ ${text}
       "Food: " + clean(event.food),
       "Location: " + clean(event.place),
       "Date: " + clean(event.date),
-      "Time: " + clean(event.time),
+      "Time: " + clean(event.start_time),
       "",
-      "⚠️ Unverified - confirm before going."
+      added
+        ? "✅ Added to the site. ⚠️ Unverified, so confirm before going."
+        : "⚠️ Not added to the site (missing place, date, or start time).",
     ].join("\n");
 
     const posted = await fetch(
