@@ -1,4 +1,4 @@
-document.getElementById("auth-submit").addEventListener("click", () => {
+document.getElementById("auth-submit").addEventListener("click", async () => {
  
   const password = document.getElementById("auth-password").value;
   const email    = document.getElementById("auth-email").value.trim();
