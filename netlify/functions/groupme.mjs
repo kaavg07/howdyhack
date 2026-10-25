@@ -171,12 +171,14 @@ ${text}
                   nullable: true
                 }
               },
-              required: [
+               required: [
                 "is_free_food_event",
                 "food",
                 "place",
+                "room",
                 "date",
-                "time"
+                "start_time",
+                "end_time"
               ]
             }
           }
