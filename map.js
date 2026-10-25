@@ -82,6 +82,7 @@ function refreshMapEvents() {
   const locatedEvents = [];
 
   getEvents().forEach(ev => {
+    if (ev.date !== localDateString()) return;
     const coordinates = coordsFor(ev);
     if (!coordinates) return;          // free-typed place: in the list, no pin
 
@@ -104,7 +105,9 @@ function refreshMapEvents() {
     marker.bindPopup(popup);
   });
 
-  updateNearby(locatedEvents);
+  // Nearby only shows events happening today
+  const today = localDateString();
+  updateNearby(locatedEvents.filter(ev => ev.date === today));
 }
 
 // ---------- NEARBY EVENTS ----------
@@ -143,11 +146,13 @@ function updateNearby(events) {
   );
 
   // Show up to three closest events
-  const closestEvents = nearbyEvents.slice(0, 3);
+  const closestEvents = nearbyEvents
+    .filter(ev => ev.distance <= 500)
+    .slice(0, 3);
 
   if (closestEvents.length === 0) {
-    nearbyBox.textContent =
-      "No nearby food events found.";
+     nearbyBox.textContent =
+      "No food events within 500 meters today.";
     return;
   }
 
