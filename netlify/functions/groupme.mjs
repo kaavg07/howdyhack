@@ -14,6 +14,16 @@ const PLACES = {
   "HEB":                [30.6290, -96.3340]
 };
 
+const ALIASES = {
+  "zachary": "Zachry",
+  "zach": "Zachry",
+  "evans": "Evans Library",
+  "library": "Evans Library",
+  "rec center": "Student Rec Center",
+  "rec": "Student Rec Center",
+  "kyle": "Kyle Field"
+};
+
 const DATE_OK = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_OK = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -212,13 +222,17 @@ ${text}
     // ---- save to Supabase ----
     const todayStr = today;   // YYYY-MM-DD in Chicago time
     const placeText = String(event.place || "").trim();
-    const known = Object.keys(PLACES).find(n =>
-      placeText.toLowerCase().includes(n.toLowerCase())
-    );
+     const lowerPlace = placeText.toLowerCase();
+    const known =
+      Object.keys(PLACES).find(n => lowerPlace.includes(n.toLowerCase())) ||
+      ALIASES[Object.keys(ALIASES).find(a => lowerPlace.includes(a))];
+
+    // no date in the message? assume today
+    const eventDate = DATE_OK.test(event.date || "") ? event.date : todayStr;
 
     const usable =
       event.food && placeText &&
-      DATE_OK.test(event.date || "") && event.date >= todayStr &&
+      eventDate >= todayStr &&
       TIME_OK.test(event.start_time || "");
 
     let added = false;
@@ -247,7 +261,7 @@ ${text}
             room_num: event.room || null,
             latitude: coords ? coords[0] : null,
             longitude: coords ? coords[1] : null,
-            date: event.date,
+            date: eventDate,
             start_time: event.start_time,
             end_time: end,
             active: true,
@@ -279,7 +293,7 @@ ${text}
       "",
       "Food: " + clean(event.food),
       "Location: " + clean(event.place),
-      "Date: " + clean(event.date),
+      "Date: " + clean(eventDate),
       "Time: " + clean(event.start_time),
       "",
       added
