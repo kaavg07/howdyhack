@@ -138,7 +138,8 @@ function renderEvents(list) {
 
     box.appendChild(item);
 
-    if (ev === selectedEvent) {
+    if (selectedEvent && ev.id === selectedEvent.id) {
+      selectedEvent = ev;
       selectedItem = item;
     }
   });
@@ -433,9 +434,13 @@ if (addDialog && addBtn) {
             active: true
           }
         ]);
-        console.log(error);
+        if (error) {
+          console.error(error);
+          alert("Couldn't save: " + error.message);
+          return;
+        }
 
-    loadEvents();
+    await loadEvents();
     if (window.updateChatEventDropdown) {
   window.updateChatEventDropdown();
 }
@@ -450,6 +455,7 @@ if (addDialog && addBtn) {
     document.getElementById("add-name").value = "";
     document.getElementById("add-place").value = "";
     document.getElementById("add-room").value = "";
+    document.getElementById("add-day").value = "";
     addDialog.close();
   });
 }
@@ -489,9 +495,6 @@ placeInput.addEventListener("blur", () => { placeMenu.hidden = true; });
 
 /* ---------- START WEBSITE ---------- */
 
-// Display event list
-loadEvents();
-
 // PHASE 7: Share event data with map.js
 window.getMapEvents = function () {
   return events;
@@ -503,15 +506,15 @@ window.getMapEvents = function () {
 // Give sample events stable IDs
 
 
-events.forEach(event => {
-  if (event.id == null) {
-    const key = event.name + "|" + event.place;
+// events.forEach(event => {
+//   if (event.id == null) {
+//     const key = event.name + "|" + event.place;
 
-    event.id =
-      chatSampleIds[key] ||
-      crypto.randomUUID();
-  }
-});
+//     event.id =
+//       chatSampleIds[key] ||
+//       crypto.randomUUID();
+//   }
+// });
 
 // Update chat dropdown after adding a new event
 const originalRenderEvents = renderEvents;
@@ -523,4 +526,3 @@ renderEvents = function(list) {
     window.updateChatEventDropdown();
   }
 };
-
