@@ -1,71 +1,20 @@
-// settings
-const UPDATE_MINUTES = 1;   //updates every time a new rating is added but we'll change this to like 10 min if this actually becomes an app
 
 
-const minutesAgo = m => new Date(Date.now() - m * 60000);
+const UPDATE_MINUTES = 1;   // keep as 1 for demo, but irl maybe change to like 5
 
-// ---------- button click animation ----------
-document.addEventListener("click", e => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-  btn.classList.remove("pressed");
-  void btn.offsetWidth;                         // restarts the animation on quick repeat clicks
-  btn.classList.add("pressed");
-  setTimeout(() => btn.classList.remove("pressed"), 300);
-});
+const $ = id => document.getElementById(id);
 
-// fake data
-// busy is current bar position (0 to 1), updatedAt is when the bar last changed,
-// pending is check-ins waiting for the next update
-const events = [
-  // {
-  //   day: "Today",
-  //   name: "Poppi",
-  //   place: "MSC",
-  //   time: "4:00PM - 7:00PM",
-  //   busy: 0.2,
-  //   start: "16:00",
-  //   updatedAt: minutesAgo(5),
-  //   pending: []
-  // },
-  // {
-  //   day: "Today",
-  //   name: "Pizza",
-  //   place: "Zachry",
-  //   time: "6:00PM - 7:00PM",
-  //   busy: 0.7,
-  //   start: "18:00",
-  //   updatedAt: minutesAgo(12),
-  //   pending: []
-  // },
-  // {
-  //   day: "Tomorrow",
-  //   name: "Donuts",
-  //   place: "Evans Library",
-  //   time: "9:00AM - 11:00AM",
-  //   busy: 0.4,
-  //   start: "09:00",
-  //   updatedAt: minutesAgo(30),
-  //   pending: []
-  // }
-];
 
+//state
+
+const events = [];          // loadevents in db.js
 let selectedEvent = null;
+let popupOpenedAt = 0;      
+let scrollAtOpen = 0;
+let liveCount = 0;         
 
 
-/* ---------- HELPER FUNCTIONS ---------- */
 
-function startLabel(ev) {
-  return formatTime(ev.start_time);
-}
-
-function formatClock(date) {
-  return date.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit"
-  });
-}
-// ---------- day names: ignore capitals, keep today before tomorrow ----------
 function localDateString(d = new Date()) {
   return d.getFullYear() + "-" +
     String(d.getMonth() + 1).padStart(2, "0") + "-" +
@@ -83,301 +32,276 @@ function dayKey(ev) {
     .toLocaleDateString("en-US", { weekday: "long" });
 }
 
-function sortEvents() {
-  events.sort((a, b) =>
-    a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time)
-  );
-}
 
 function formatTime(t) {
   let [h, m] = t.split(":").map(Number);
-
   const ampm = h >= 12 ? "PM" : "AM";
-
   h = h % 12 || 12;
-
   return h + ":" + String(m).padStart(2, "0") + ampm;
 }
 
+function formatClock(date) {
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
 
-/* ---------- EVENTS LIST ---------- */
+function startLabel(ev) {
+  return formatTime(ev.start_time);
+}
+
+function placeLabel(ev) {
+  return ev.room_num ? ev.location + " " + ev.room_num : ev.location;
+}
+
+function eventTitle(ev) {
+  return ev.free_stuff + " @ " + placeLabel(ev);
+}
+
+function byDateTime(a, b) {
+  return a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time);
+}
+
+function sortEvents() {
+  events.sort(byDateTime);
+}
+
+function endsAt(ev) {
+  if (!ev.date || !ev.end_time) return null;
+
+  const end = new Date(ev.date + "T" + ev.end_time);
+  const start = new Date(ev.date + "T" + ev.start_time);
+  if (end <= start) end.setDate(end.getDate() + 1);
+  return end;
+}
+
+function hasEnded(ev) {
+  const end = endsAt(ev);
+  return end ? end <= new Date() : false;
+}
+
+
 
 function renderEvents(list) {
-  const box = document.getElementById("events-list");
-
+  const box = $("events-list");
   box.innerHTML = "";
+
+  const visible = list.filter(ev => !hasEnded(ev)).sort(byDateTime);
+  liveCount = visible.length;
 
   let lastDay = "";
   let selectedItem = null;
 
-  list.forEach(ev => {
-            if (dayKey(ev) !== lastDay) {
+  visible.forEach(ev => {
+    const day = dayKey(ev);
+
+    if (day !== lastDay) {
       const label = document.createElement("h3");
-
       label.className = "day";
-      label.textContent = dayKey(ev);
-
+      label.textContent = day;
       box.appendChild(label);
-
-      lastDay = dayKey(ev);
+      lastDay = day;
     }
 
     const item = document.createElement("div");
-
     item.className = "event-item";
-
-    item.textContent =
-      ev.free_stuff + " @ " +
-      ev.location +
-      (ev.room_num ? " " + ev.room_num : "") +
-      " at " + startLabel(ev);
-
-    item.addEventListener("click", () => {
-      selectEvent(ev, item);
-    });
-
+    item.textContent = eventTitle(ev) + " at " + startLabel(ev);
+    item.addEventListener("click", () => selectEvent(ev, item));
     box.appendChild(item);
 
-    if (ev === selectedEvent) {
+    if (selectedEvent && selectedEvent.event_id != null &&
+        ev.event_id === selectedEvent.event_id) {
+      selectedEvent = ev;
       selectedItem = item;
     }
   });
 
-  if (selectedItem) {
-    selectEvent(selectedEvent, selectedItem);
-  } else {
-    hidePopup();
-  }
+  if (selectedItem) selectEvent(selectedEvent, selectedItem);
+  else hidePopup();
+
+  window.updateChatEventDropdown?.();
 }
 
+//popup
 
-/* ---------- EVENT POPUP ---------- */
+function clearSelection() {
+  document.querySelectorAll("#events-list .event-item").forEach(i => {
+    i.classList.remove("selected");
+    i.style.width = "";
+  });
+}
 
 function selectEvent(ev, item) {
   selectedEvent = ev;
+  window.openEventChat?.(ev);
 
-    if (window.openEventChat) {
-    window.openEventChat(ev);
-  }
-
-  document.querySelectorAll("#events-list .event-item")
-    .forEach(i => {
-      i.classList.remove("selected");
-      i.style.width = "";
-    });
-
+  clearSelection();
   item.classList.add("selected");
-
   fillPopup(ev);
 
-  const popup = document.getElementById("event-popup");
-
+  const popup = $("event-popup");
   popup.hidden = false;
+  popup.classList.remove("flip");
 
-  const wrapTop = document.querySelector(".events-wrap")
-    .getBoundingClientRect().top;
-
+  const wrapTop = document.querySelector(".events-wrap").getBoundingClientRect().top;
   const itemRect = item.getBoundingClientRect();
+  const margin = 12;
 
-  popup.style.top =
-    (itemRect.top - wrapTop) + "px";
+  
+  popup.style.top = (itemRect.top - wrapTop) + "px";
 
-  const popupLeft = popup.getBoundingClientRect().left;
+  if (popup.getBoundingClientRect().bottom > window.innerHeight - margin) {
+    const popupHeight = popup.offsetHeight;
+
+    if (itemRect.bottom - popupHeight >= margin) {
+      popup.classList.add("flip");
+      popup.style.top = (itemRect.bottom - wrapTop - popupHeight) + "px";
+    } else {
+      popup.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
 
   item.style.width =
-    Math.max(0, popupLeft - itemRect.left) + "px";
-}
+    Math.max(0, popup.getBoundingClientRect().left - itemRect.left) + "px";
 
+  popupOpenedAt = Date.now();
+  scrollAtOpen = $("events").scrollTop;
+}
 
 function fillPopup(ev) {
-  document.getElementById("pop-name").textContent =
-    ev.free_stuff;
+  $("pop-name").textContent  = ev.free_stuff;
+  $("pop-place").textContent = placeLabel(ev);
+  $("pop-time").textContent  = formatTime(ev.start_time) + " - " + formatTime(ev.end_time);
+  $("busy-marker").style.left = ((ev.busy ?? 0.1) * 100) + "%";
 
-  document.getElementById("pop-place").textContent =
-    ev.room_num ? ev.location + " " + ev.room_num : ev.location;
+  const updatedAt = ev.updatedAt || new Date();
+  const waiting = (ev.pending || []).length;
+  const next = new Date(updatedAt.getTime() + UPDATE_MINUTES * 60000);
 
-    document.getElementById("pop-time").textContent =
-    formatTime(ev.start_time) + " - " + formatTime(ev.end_time);
-
-  document.getElementById("busy-marker").style.left =
-    (ev.busy * 100) + "%";
-
-  const next = new Date(
-    ev.updatedAt.getTime() + UPDATE_MINUTES * 60000
-  );
-
-  const waiting = ev.pending.length;
-
-  document.getElementById("pop-updated").textContent =
-    "Last updated " + formatClock(ev.updatedAt) + "\n" +
+  $("pop-updated").textContent =
+    "Last updated " + formatClock(updatedAt) + "\n" +
     "Next update " + formatClock(next) +
-    (waiting
-      ? " (" + waiting + " check-in" +
-        (waiting > 1 ? "s" : "") + " waiting)"
-      : "");
+    (waiting ? " (" + waiting + " check-in" + (waiting > 1 ? "s" : "") + " waiting)" : "");
 }
-
 
 function refreshPopup() {
-  if (selectedEvent) {
-    fillPopup(selectedEvent);
-  }
+  if (selectedEvent) fillPopup(selectedEvent);
 }
-
 
 function hidePopup() {
   selectedEvent = null;
-
-  document.getElementById("event-popup").hidden = true;
-
-  document.querySelectorAll("#events-list .event-item")
-    .forEach(i => {
-      i.classList.remove("selected");
-      i.style.width = "";
-    });
+  $("event-popup").hidden = true;
+  clearSelection();
 }
 
-
-// Close popup when clicking outside
 document.addEventListener("click", e => {
-  const popup = document.getElementById("event-popup");
-
-  if (popup.hidden) return;
-
-  if (e.target.closest(
-    "#event-popup, #events-list .event-item, dialog"
-  )) {
-    return;
-  }
-
+  if ($("event-popup").hidden) return;
+  if (e.target.closest("#event-popup, #events-list .event-item, dialog")) return;
   hidePopup();
 });
 
+$("events").addEventListener("scroll", () => {
+  if (!selectedEvent) return;
+  const box = $("events");
 
-/* ---------- BUSY BAR UPDATES ---------- */
+  if (Date.now() - popupOpenedAt < 400) {
+    scrollAtOpen = box.scrollTop;
+    return;
+  }
+  if (Math.abs(box.scrollTop - scrollAtOpen) > 4) hidePopup();
+}, { passive: true });
+
+
+//busy
 
 function maybeUpdate(ev) {
-  const due =
-    Date.now() - ev.updatedAt.getTime() >=
-    UPDATE_MINUTES * 60000;
+  if (!ev.pending || ev.pending.length === 0) return false;
 
-  if (due && ev.pending.length > 0) {
+  const updatedAt = ev.updatedAt || new Date(0);
+  const due = Date.now() - updatedAt.getTime() >= UPDATE_MINUTES * 60000;
+  if (!due) return false;
 
-    const total = ev.pending.reduce(
-      (sum, value) => sum + value,
-      0
-    );
-
-    ev.busy = total / ev.pending.length;
-
-    ev.pending = [];
-
-    ev.updatedAt = new Date();
-
-    return true;
-  }
-
-  return false;
+  const total = ev.pending.reduce((sum, v) => sum + v, 0);
+  ev.busy = total / ev.pending.length;
+  ev.pending = [];
+  ev.updatedAt = new Date();
+  return true;
 }
 
 
-// Check every 30 seconds
 setInterval(() => {
   events.forEach(maybeUpdate);
+
+  if (events.filter(ev => !hasEnded(ev)).length !== liveCount) {
+    renderEvents(events);
+    window.refreshMapEvents?.();
+  }
+
   refreshPopup();
 }, 30000);
 
 
-/* ---------- I'M HERE CHECK-IN ---------- */
+//check in
 
-const checkinDialog =
-  document.getElementById("checkin-dialog");
+const checkinDialog = $("checkin-dialog");
 
-document.getElementById("im-here-btn")
-  .addEventListener("click", () => {
+$("im-here-btn").addEventListener("click", () => {
+  if (!selectedEvent) return;
 
-    if (!selectedEvent) return;
+  $("checkin-event").textContent = eventTitle(selectedEvent);
+  $("checkin-slider").value = Math.round((selectedEvent.busy ?? 0.1) * 100);
+  checkinDialog.showModal();
+});
 
-    document.getElementById("checkin-event")
-      .textContent =
-        selectedEvent.free_stuff + " @ " +
-  selectedEvent.location +
-  (selectedEvent.room_num ? " " + selectedEvent.room_num : "");
+$("checkin-cancel").addEventListener("click", () => checkinDialog.close());
 
-    document.getElementById("checkin-slider").value =
-      Math.round(selectedEvent.busy * 100);
+$("checkin-save").addEventListener("click", () => {
+  if (!selectedEvent) return;
 
-    checkinDialog.showModal();
-  });
+  selectedEvent.pending = selectedEvent.pending || [];
+  selectedEvent.pending.push(Number($("checkin-slider").value) / 100);
 
-
-document.getElementById("checkin-cancel")
-  .addEventListener("click", () => {
-    checkinDialog.close();
-  });
-
-
-document.getElementById("checkin-save")
-  .addEventListener("click", () => {
-
-    if (!selectedEvent) return;
-
-    const value =
-      Number(document.getElementById("checkin-slider").value)
-      / 100;
-
-    selectedEvent.pending.push(value);
-
-    maybeUpdate(selectedEvent);
-
-    fillPopup(selectedEvent);
-
-    checkinDialog.close();
-  });
+  maybeUpdate(selectedEvent);
+  fillPopup(selectedEvent);
+  checkinDialog.close();
+});
 
 
 
 
-/* ---------- ADD EVENT FORM ---------- */
 
-const addDialog = document.getElementById("add-dialog");
-const addBtn = document.getElementById("add-event-btn");
-
-// reads "04:30" plus AM/PM and returns 24-hour "16:30", or null if it isn't complete
 function parseTypedTime(text, ampm) {
   const match = text.trim().match(/^(0[1-9]|1[0-2]):([0-5]\d)$/);
   if (!match) return null;
 
-  let h = Number(match[1]) % 12;               // 12 becomes 0
+  let h = Number(match[1]) % 12;               
   if (ampm === "PM") h += 12;
   return String(h).padStart(2, "0") + ":" + match[2];
 }
 
-// ---------- time boxes: only allow a valid 12-hour time as you type ----------
+
 function maskTime(raw) {
   const digits = raw.replace(/\D/g, "");
   let out = "";
 
   for (const d of digits) {
-    const pos = out.replace(":", "").length;     // digits already in the box
+    const pos = out.replace(":", "").length;     
 
-    if (pos === 0) {                             // 1st digit
+    if (pos === 0) {                             
       if (d === "0" || d === "1") out += d;
-      else if (/[2-9]/.test(d)) out += "0" + d + ":";   // typing 4 becomes 04:
+      else if (/[2-9]/.test(d)) out += "0" + d + ":";
       continue;
     }
-    if (pos === 1) {                             // 2nd digit
-      if (out[0] === "0" && !/[1-9]/.test(d)) continue;   // 01-09 only
-      if (out[0] === "1" && !/[0-2]/.test(d)) continue;   // 10-12 only
-      out += d + ":";                            // colon appears by itself
+    if (pos === 1) {                             
+      if (out[0] === "0" && !/[1-9]/.test(d)) continue;
+      if (out[0] === "1" && !/[0-2]/.test(d)) continue;
+      out += d + ":";
       continue;
     }
-    if (pos === 2) {                             // 3rd digit: 0-5
+    if (pos === 2) {                             
       if (!/[0-5]/.test(d)) continue;
       out += d;
       continue;
     }
-    if (pos === 3) {                             // 4th digit: 0-9
+    if (pos === 3) {                             
       out += d;
       continue;
     }
@@ -387,12 +311,12 @@ function maskTime(raw) {
 }
 
 ["add-start", "add-end"].forEach(id => {
-  const box = document.getElementById(id);
+  const box = $(id);
   if (!box) return;
 
   box.addEventListener("input", e => {
     let v = maskTime(box.value);
-    // let backspace remove the colon instead of re-adding it
+    
     if (e.inputType && e.inputType.startsWith("delete") && v.endsWith(":")) {
       v = v.slice(0, -1);
     }
@@ -400,127 +324,108 @@ function maskTime(raw) {
   });
 });
 
+
+//form
+
+const addDialog = $("add-dialog");
+const addBtn = $("add-event-btn");
+
 if (addDialog && addBtn) {
   addBtn.addEventListener("click", () => addDialog.showModal());
-  document.getElementById("add-cancel").addEventListener("click", () => addDialog.close());
+  $("add-cancel").addEventListener("click", () => addDialog.close());
 
-  document.getElementById("add-save").addEventListener("click",async () => {
-    const name  = document.getElementById("add-name").value.trim();
-    const start = parseTypedTime(document.getElementById("add-start").value,
-                                 document.getElementById("add-start-ampm").value);
-    const end   = parseTypedTime(document.getElementById("add-end").value,
-                                 document.getElementById("add-end-ampm").value);
-    const place = document.getElementById("add-place").value.trim();
-    const room  = document.getElementById("add-room").value.trim();
+  $("add-save").addEventListener("click", async () => {
+    const saveBtn = $("add-save");
 
-    if (!name || !start || !end || !place || !document.getElementById("add-day").value) {
-      alert("Please fill in the name, location, and a start and end time like 4:00.");
+    const name  = $("add-name").value.trim();
+    const place = $("add-place").value.trim();
+    const room  = $("add-room").value.trim();
+    const date  = $("add-day").value;
+    const start = parseTypedTime($("add-start").value, $("add-start-ampm").value);
+    const end   = parseTypedTime($("add-end").value, $("add-end-ampm").value);
+
+    if (!name || !place || !date || !start || !end) {
+      alert("please fill in the name, location, date, and a start and end time like 04:00.");
       return;
     }
 
-    const { error } =
-      await window.supabaseClient
-        .from("events")
-        .insert([
-          {
-            event_type: document.getElementById("add-type").value,
-            free_stuff: name,
-            location: place,
-            room_num: room,
-            date: document.getElementById("add-day").value,
-            start_time: start,
-            end_time: end,
-            active: true
-          }
-        ]);
-        console.log(error);
-
-    loadEvents();
-    if (window.updateChatEventDropdown) {
-  window.updateChatEventDropdown();
-}
-
-    // redraw the map pins and Nearby (C's map code)
-    if (window.refreshMapEvents) {
-      window.refreshMapEvents();
+    const db = window.supabaseClient;
+    if (!db) {
+      alert("the database isn't connected yet.");
+      return;
     }
 
-    document.getElementById("add-start").value = "";
-    document.getElementById("add-end").value = "";
-    document.getElementById("add-name").value = "";
-    document.getElementById("add-place").value = "";
-    document.getElementById("add-room").value = "";
+    saveBtn.disabled = true;                      
+
+    const { error } = await db.from("events").insert([{
+      event_type: $("add-type").value,
+      free_stuff: name,
+      location: place,
+      room_num: room,
+      date: date,
+      start_time: start,
+      end_time: end,
+      active: true
+    }]);
+
+    saveBtn.disabled = false;
+
+    if (error) {
+      console.error(error);
+      alert("could not save the event. please try again.");
+      return;
+    }
+
+    await loadEvents();
+    window.refreshMapEvents?.();
+
+    ["add-name", "add-place", "add-room", "add-start", "add-end"]
+      .forEach(id => { $(id).value = ""; });
     addDialog.close();
   });
 }
 
 
-/* ---------- PLACE SUGGESTIONS ---------- */
+//place suggestions
 
 const PLACES = ["MSC", "Zachry", "Evans Library", "Sbisa", "Commons",
                 "Student Rec Center", "Kyle Field", "HEB"];
 
-const placeInput = document.getElementById("add-place");
-const placeMenu  = document.getElementById("place-menu");
+const placeInput = $("add-place");
+const placeMenu = $("place-menu");
 
-function showPlaces() {
-  const q = placeInput.value.trim().toLowerCase();
-  const matches = PLACES.filter(p => p.toLowerCase().includes(q));
+if (placeInput && placeMenu) {
+  const showPlaces = () => {
+    const q = placeInput.value.trim().toLowerCase();
+    const matches = PLACES.filter(p => p.toLowerCase().includes(q));
 
-  placeMenu.innerHTML = "";
-  matches.forEach(p => {
-    const row = document.createElement("div");
-    row.textContent = p;
-    row.addEventListener("mousedown", e => {
-      e.preventDefault();                 // keeps the input from losing focus first
-      placeInput.value = p;
-      placeMenu.hidden = true;
+    placeMenu.innerHTML = "";
+    matches.forEach(p => {
+      const row = document.createElement("div");
+      row.textContent = p;
+      row.addEventListener("mousedown", e => {
+        e.preventDefault();                       // keeps the input from losing focus first
+        placeInput.value = p;
+        placeMenu.hidden = true;
+      });
+      placeMenu.appendChild(row);
     });
-    placeMenu.appendChild(row);
-  });
 
-  placeMenu.hidden = matches.length === 0;
+    placeMenu.hidden = matches.length === 0;
+  };
+
+  placeInput.addEventListener("focus", showPlaces);
+  placeInput.addEventListener("input", showPlaces);
+  placeInput.addEventListener("blur", () => { placeMenu.hidden = true; });
 }
 
-placeInput.addEventListener("focus", showPlaces);
-placeInput.addEventListener("input", showPlaces);
-placeInput.addEventListener("blur", () => { placeMenu.hidden = true; });
 
 
-/* ---------- START WEBSITE ---------- */
 
-// Display event list
-loadEvents();
-
-// PHASE 7: Share event data with map.js
-window.getMapEvents = function () {
-  return events;
-};
+// events that haven't ended yet
+window.getMapEvents = () => events.filter(ev => !hasEnded(ev));
 
 
-/* ---------- PHASE 8: CHAT INTEGRATION ---------- */
-
-// Give sample events stable IDs
 
 
-events.forEach(event => {
-  if (event.id == null) {
-    const key = event.name + "|" + event.place;
-
-    event.id =
-      chatSampleIds[key] ||
-      crypto.randomUUID();
-  }
-});
-
-// Update chat dropdown after adding a new event
-const originalRenderEvents = renderEvents;
-
-renderEvents = function(list) {
-  originalRenderEvents(list);
-
-  if (window.updateChatEventDropdown) {
-    window.updateChatEventDropdown();
-  }
-};
-
+loadEvents();      // defined in db.js
